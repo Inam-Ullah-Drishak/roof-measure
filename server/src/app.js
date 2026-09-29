@@ -10,8 +10,15 @@ import adminRoutes from "./routes/adminRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
 import { handleStripeWebhook } from "./controllers/webhookController.js";
+import { apiLimiter } from "./middleware/rateLimiters.js";
 
 const app = express();
+
+// Behind a proxy/load balancer (Render, Railway, Nginx, Heroku...) set TRUST_PROXY=1
+// so rate limiting sees each visitor's real IP instead of the proxy's
+if (process.env.TRUST_PROXY) {
+  app.set("trust proxy", Number(process.env.TRUST_PROXY) || process.env.TRUST_PROXY);
+}
 
 // Security headers and logging
 app.use(helmet());
@@ -28,6 +35,7 @@ app.post(
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
+app.use("/api", apiLimiter);
 
 // Health check
 app.get("/api/health", (req, res) => {

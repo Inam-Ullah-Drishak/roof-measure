@@ -122,5 +122,5 @@ export const downloadReportFile = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "File not found" });
   }
 
-  sendFile(res, file.publicId, `${order.orderNumber}-${file.fileName}`);
+  await sendFile(res, file.publicId, `${order.orderNumber}-${file.fileName}`);
 });

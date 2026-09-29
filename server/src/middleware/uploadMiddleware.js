@@ -12,7 +12,10 @@ export const FORMAT_BY_EXTENSION = {
   ".png": "image",
 };
 
-const MAX_FILE_SIZE_MB = 25;
+// Cloudinary's free plan rejects raw files over 10 MB, so default lower there.
+// Override with MAX_UPLOAD_MB (e.g. after upgrading the plan).
+const MAX_FILE_SIZE_MB =
+  Number(process.env.MAX_UPLOAD_MB) || (process.env.CLOUDINARY_URL ? 10 : 25);
 const MAX_FILES = 5;
 
 const upload = multer({

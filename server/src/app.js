@@ -5,6 +5,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 
 import authRoutes from "./routes/authRoutes.js";
+import orderRoutes from "./routes/orderRoutes.js";
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.get("/api/health", (req, res) => {
 
 // Routes
 app.use("/api/auth", authRoutes);
+app.use("/api/orders", orderRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -30,9 +32,43 @@ app.use((req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(err.statusCode || 500).json({
-    message: err.message || "Server error",
+  let statusCode = err.statusCode || 500;
+  let message = err.message || "Server error";
+
+  // Mongoose validation error (e.g. missing required field)
+  if (err.name === "ValidationError") {
+    statusCode = 400;
+    message = Object.values(err.errors)
+      .map((e) => e.message)
+      .join(", ");
+  }
+
+  // Invalid MongoDB ID (e.g. /api/orders/my/abc123)
+  if (err.name === "CastError") {
+    statusCode = 400;
+    message = `Invalid ${err.path}`;
+  }
+
+  // Duplicate key (e.g. email already exists)
+  if (err.code === 11000) {
+    statusCode = 409;
+    const field = Object.keys(err.keyValue || {})[0] || "field";
+    message = `${field} already exists`;
+  }
+
+  // Invalid JSON in request body
+  if (err.type === "entity.parse.failed") {
+    statusCode = 400;
+    message = "Invalid JSON in request body";
+  }
+
+  if (statusCode === 500) console.error(err);
+
+  res.status(statusCode).json({
+    message:
+      statusCode === 500 && process.env.NODE_ENV === "production"
+        ? "Something went wrong"
+        : message,
   });
 });
 

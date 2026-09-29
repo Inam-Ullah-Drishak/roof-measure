@@ -1,6 +1,7 @@
 import Order from "../models/Order.js";
 import stripe from "../config/stripe.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import { notifyPaymentReceived } from "../utils/notifications.js";
 
 const toCents = (amount) => Math.round(amount * 100);
 
@@ -22,7 +23,7 @@ export const markOrderPaid = async (session) => {
 
   // Atomic update: only changes it if not already paid,
   // so the webhook and verify route can't both process it
-  return Order.findOneAndUpdate(
+  const paidOrder = await Order.findOneAndUpdate(
     { _id: orderId, "payment.status": { $ne: "paid" } },
     {
       "payment.status": "paid",
@@ -35,6 +36,11 @@ export const markOrderPaid = async (session) => {
     },
     { new: true }
   );
+
+  // Only the call that actually marked it paid sends the emails (no duplicates)
+  if (paidOrder) notifyPaymentReceived(paidOrder);
+
+  return paidOrder;
 };
 
 // Close any open checkout page so a cancelled order can't be paid.

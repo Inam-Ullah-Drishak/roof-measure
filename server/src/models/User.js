@@ -1,5 +1,11 @@
 import mongoose from "mongoose";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
+
+export const RESET_TOKEN_MINUTES = 15;
+
+export const hashToken = (token) =>
+  crypto.createHash("sha256").update(token).digest("hex");
 
 const userSchema = new mongoose.Schema(
   {
@@ -40,6 +46,11 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    // Used to log out old sessions after a password change
+    passwordChangedAt: { type: Date, select: false },
+    // Only the SHA-256 hash is stored, the real token is sent by email
+    passwordResetToken: { type: String, select: false },
+    passwordResetExpires: { type: Date, select: false },
   },
   { timestamps: true }
 );
@@ -49,11 +60,28 @@ userSchema.pre("save", async function () {
   if (!this.isModified("password")) return;
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
+
+  // 1 second back, so the login token issued right after is still valid
+  if (!this.isNew) this.passwordChangedAt = new Date(Date.now() - 1000);
 });
 
 // Compare entered password with hashed password
 userSchema.methods.comparePassword = async function (enteredPassword) {
   return bcrypt.compare(enteredPassword, this.password);
+};
+
+// True if the password was changed after this JWT was issued
+userSchema.methods.changedPasswordAfter = function (jwtIssuedAt) {
+  if (!this.passwordChangedAt) return false;
+  return jwtIssuedAt * 1000 < this.passwordChangedAt.getTime();
+};
+
+// Creates a reset token, stores its hash, and returns the plain token for the email
+userSchema.methods.createPasswordResetToken = function () {
+  const resetToken = crypto.randomBytes(32).toString("hex");
+  this.passwordResetToken = hashToken(resetToken);
+  this.passwordResetExpires = new Date(Date.now() + RESET_TOKEN_MINUTES * 60 * 1000);
+  return resetToken;
 };
 
 const User = mongoose.model("User", userSchema);

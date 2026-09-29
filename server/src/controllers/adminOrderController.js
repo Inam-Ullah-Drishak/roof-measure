@@ -2,6 +2,7 @@ import Order, { ORDER_STATUSES } from "../models/Order.js";
 import User from "../models/User.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { expireCheckoutSession } from "./paymentController.js";
+import { notifyReportReady } from "../utils/notifications.js";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -150,6 +151,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
   await order.save();
   if (status === "cancelled") await expireCheckoutSession(order);
+  if (status === "completed") notifyReportReady(order);
 
   res.json({ message: `Order marked as ${status}`, order });
 });

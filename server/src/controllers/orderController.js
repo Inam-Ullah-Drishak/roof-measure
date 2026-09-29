@@ -2,6 +2,7 @@ import Order from "../models/Order.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { calculateOrderPrice } from "../config/pricing.js";
 import { expireCheckoutSession } from "./paymentController.js";
+import { notifyOrderReceived } from "../utils/notifications.js";
 
 // Only these fields are accepted from the customer.
 // price, status, payment, reportFiles, adminNotes are NEVER taken from req.body.
@@ -50,6 +51,8 @@ export const createOrder = asyncHandler(async (req, res) => {
     price: total,
     customer: req.user._id,
   });
+
+  notifyOrderReceived(order, req.user);
 
   res.status(201).json({
     message: "Order created successfully",

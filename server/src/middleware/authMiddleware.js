@@ -19,10 +19,17 @@ export const protect = asyncHandler(async (req, res, next) => {
       .json({ message: "Session expired or invalid, please log in again" });
   }
 
-  const user = await User.findById(decoded.id);
+  const user = await User.findById(decoded.id).select("+passwordChangedAt");
 
   if (!user) {
     return res.status(401).json({ message: "User no longer exists" });
+  }
+
+  // Sessions from before a password change/reset are no longer valid
+  if (user.changedPasswordAfter(decoded.iat)) {
+    return res
+      .status(401)
+      .json({ message: "Password was changed, please log in again" });
   }
 
   if (!user.isActive) {

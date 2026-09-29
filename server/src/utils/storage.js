@@ -41,6 +41,12 @@ if (STORAGE_DRIVER === "local" && process.env.NODE_ENV === "production") {
 // Private raw files: only reachable with a signed, short-lived API link
 const CLOUDINARY_OPTIONS = { resource_type: "raw", type: "private" };
 
+// Everything goes under one folder (default "roof-measure"), so this project's
+// files never mix with other projects in the same Cloudinary account.
+// The key saved in the database stays "reports/<id>.pdf".
+const CLOUDINARY_FOLDER = (process.env.CLOUDINARY_FOLDER || "roof-measure").replace(/^\/+|\/+$/g, "");
+const cloudinaryId = (key) => `${CLOUDINARY_FOLDER}/${key}`;
+
 let s3;
 const getS3 = () => {
   if (!s3) {
@@ -90,7 +96,13 @@ export const saveFile = async (buffer, originalName, folder = "reports") => {
     await new Promise((resolve, reject) => {
       cloudinary.uploader
         .upload_stream(
-          { ...CLOUDINARY_OPTIONS, public_id: key, overwrite: false },
+          {
+            ...CLOUDINARY_OPTIONS,
+            public_id: cloudinaryId(key),
+            // Shows the file in this folder in the Media Library (newer accounts)
+            asset_folder: path.posix.dirname(cloudinaryId(key)),
+            overwrite: false,
+          },
           (err, result) => (err ? reject(cloudinaryError(err)) : resolve(result))
         )
         .end(buffer);
@@ -119,7 +131,7 @@ export const deleteFile = async (key) => {
   if (useCloudinary) {
     assertValidKey(key);
     // Returns "not found" for missing files, which is fine
-    await cloudinary.uploader.destroy(key, {
+    await cloudinary.uploader.destroy(cloudinaryId(key), {
       ...CLOUDINARY_OPTIONS,
       invalidate: true,
     });
@@ -149,7 +161,7 @@ export const sendFile = async (res, key, downloadName) => {
     assertValidKey(key);
 
     // Signed link valid for 1 minute, only used by our server
-    const url = cloudinary.utils.private_download_url(key, "", {
+    const url = cloudinary.utils.private_download_url(cloudinaryId(key), "", {
       ...CLOUDINARY_OPTIONS,
       expires_at: Math.floor(Date.now() / 1000) + 60,
     });

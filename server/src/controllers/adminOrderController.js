@@ -120,6 +120,13 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     });
   }
 
+  // A completed order must have at least one report file for the customer
+  if (status === "completed" && order.reportFiles.length === 0) {
+    return res.status(400).json({
+      message: "Upload at least one report file before completing the order",
+    });
+  }
+
   order.status = status;
 
   if (status === "completed") order.completedAt = new Date();

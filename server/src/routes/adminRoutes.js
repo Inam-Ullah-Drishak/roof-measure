@@ -13,6 +13,11 @@ import {
   updateAdminNotes,
   getDashboardStats,
 } from "../controllers/adminOrderController.js";
+import {
+  uploadReportFiles,
+  deleteReportFile,
+} from "../controllers/fileController.js";
+import { uploadReportFiles as uploadMiddleware } from "../middleware/uploadMiddleware.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -35,5 +40,9 @@ router.get("/orders/:id", getOrderById);
 router.patch("/orders/:id/status", updateOrderStatus);
 router.patch("/orders/:id/assign", assignOrder);
 router.patch("/orders/:id/notes", updateAdminNotes);
+
+// Report files
+router.post("/orders/:id/files", uploadMiddleware, uploadReportFiles);
+router.delete("/orders/:id/files/:fileId", deleteReportFile);
 
 export default router;

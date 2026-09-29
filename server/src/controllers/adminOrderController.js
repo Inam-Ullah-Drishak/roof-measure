@@ -1,6 +1,7 @@
 import Order, { ORDER_STATUSES } from "../models/Order.js";
 import User from "../models/User.js";
 import asyncHandler from "../utils/asyncHandler.js";
+import { expireCheckoutSession } from "./paymentController.js";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -39,7 +40,7 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   }
 
   if (req.query.search) {
-    const regex = new RegExp(escapeRegex(req.query.search.trim()), "i");
+    const regex = new RegExp(escapeRegex(String(req.query.search).trim()), "i");
 
     // Also match customers by name, email or company
     const matchingCustomers = await User.find({
@@ -148,6 +149,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
   });
 
   await order.save();
+  if (status === "cancelled") await expireCheckoutSession(order);
 
   res.json({ message: `Order marked as ${status}`, order });
 });

@@ -33,6 +33,8 @@ export const handleStripeWebhook = async (req, res) => {
 
       case "checkout.session.async_payment_failed": {
         const session = event.data.object;
+        // Without an orderId Mongoose drops the _id filter and would update a random order
+        if (!session.metadata?.orderId) break;
         await Order.findOneAndUpdate(
           { _id: session.metadata?.orderId, "payment.status": { $ne: "paid" } },
           { "payment.status": "failed" }

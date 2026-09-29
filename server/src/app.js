@@ -46,7 +46,8 @@ app.use((req, res) => {
 
 // Global error handler
 app.use((err, req, res, next) => {
-  let statusCode = err.statusCode || 500;
+  // body-parser and res.download use err.status (e.g. 413, 404)
+  let statusCode = err.statusCode || err.status || 500;
   let message = err.message || "Server error";
 
   // Mongoose validation error (e.g. missing required field)
@@ -78,7 +79,8 @@ app.use((err, req, res, next) => {
 
   // Stripe errors (e.g. invalid API key)
   if (err.type?.startsWith?.("Stripe")) {
-    statusCode = err.statusCode || 502;
+    // Always 502: passing Stripe's 401 through would look like the user's session expired
+    statusCode = 502;
     message = `Payment provider error: ${err.message}`;
   }
 

@@ -19,7 +19,7 @@ export const getCustomers = asyncHandler(async (req, res) => {
   if (req.query.status === "inactive") filter.isActive = false;
 
   if (req.query.search) {
-    const regex = new RegExp(escapeRegex(req.query.search.trim()), "i");
+    const regex = new RegExp(escapeRegex(String(req.query.search).trim()), "i");
     filter.$or = [
       { name: regex },
       { email: regex },

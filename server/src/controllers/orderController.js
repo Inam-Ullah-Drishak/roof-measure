@@ -1,6 +1,7 @@
 import Order from "../models/Order.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { calculateOrderPrice } from "../config/pricing.js";
+import { expireCheckoutSession } from "./paymentController.js";
 
 // Only these fields are accepted from the customer.
 // price, status, payment, reportFiles, adminNotes are NEVER taken from req.body.
@@ -8,9 +9,16 @@ const pickOrderInput = (body = {}) => ({
   property: body.property,
   propertyType: body.propertyType,
   reportType: body.reportType,
-  deliveryFormats: body.deliveryFormats,
+  // Accept a single format sent as text, e.g. "esx"
+  deliveryFormats:
+    typeof body.deliveryFormats === "string"
+      ? [body.deliveryFormats]
+      : body.deliveryFormats,
   turnaround: body.turnaround,
-  includeDetachedStructures: body.includeDetachedStructures,
+  // Strict boolean so the price and the saved value always agree ("false" is truthy)
+  includeDetachedStructures:
+    body.includeDetachedStructures === true ||
+    body.includeDetachedStructures === "true",
   claimNumber: body.claimNumber,
   referenceNumber: body.referenceNumber,
   specialInstructions: body.specialInstructions,
@@ -121,6 +129,7 @@ export const cancelMyOrder = asyncHandler(async (req, res) => {
   });
 
   await order.save();
+  await expireCheckoutSession(order);
 
   res.json({ message: "Order cancelled", order });
 });

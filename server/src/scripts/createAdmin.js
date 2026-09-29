@@ -3,6 +3,8 @@ import mongoose from "mongoose";
 import connectDB from "../config/db.js";
 import User from "../models/User.js";
 
+let exitCode = 0;
+
 const createAdmin = async () => {
   const { ADMIN_NAME, ADMIN_EMAIL, ADMIN_PASSWORD } = process.env;
 
@@ -35,9 +37,10 @@ const createAdmin = async () => {
     }
   } catch (err) {
     console.error(`Failed to create admin: ${err.message}`);
+    exitCode = 1;
   } finally {
     await mongoose.disconnect();
-    process.exit(0);
+    process.exit(exitCode);
   }
 };
 

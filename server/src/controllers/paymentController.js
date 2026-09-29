@@ -37,6 +37,17 @@ export const markOrderPaid = async (session) => {
   );
 };
 
+// Close any open checkout page so a cancelled order can't be paid.
+// Best effort: the session may already be expired or completed.
+export const expireCheckoutSession = async (order) => {
+  if (!order.payment.sessionId || order.payment.status === "paid") return;
+  try {
+    await stripe.checkout.sessions.expire(order.payment.sessionId);
+  } catch {
+    // Not open anymore, nothing to do
+  }
+};
+
 // @route   POST /api/payments/checkout/:orderId
 // @access  Customer (own orders)
 export const createCheckoutSession = asyncHandler(async (req, res) => {
@@ -122,6 +133,11 @@ export const verifyPayment = asyncHandler(async (req, res) => {
   try {
     session = await stripe.checkout.sessions.retrieve(req.params.sessionId);
   } catch {
+    return res.status(404).json({ message: "Payment session not found" });
+  }
+
+  // Without an orderId the query below would match any of the customer's orders
+  if (!session.metadata?.orderId) {
     return res.status(404).json({ message: "Payment session not found" });
   }
 

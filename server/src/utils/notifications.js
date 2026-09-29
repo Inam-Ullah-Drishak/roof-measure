@@ -159,3 +159,39 @@ export const notifyReportReady = async (order) => {
     console.error(`Report-ready notification failed for ${order.orderNumber}: ${err.message}`);
   }
 };
+
+// Admin: new contact form enquiry. Reply-To is the visitor, so "Reply" in the
+// mail app answers them directly.
+export const notifyNewEnquiry = async (enquiry) => {
+  try {
+    const adminEmails = await getAdminEmails();
+    if (adminEmails.length === 0) return;
+
+    const url = `${process.env.CLIENT_URL}/admin/enquiries`;
+    const subjectLine = enquiry.subject || "New enquiry";
+
+    sendInBackground({
+      to: adminEmails.join(","),
+      replyTo: enquiry.email,
+      subject: `Contact form: ${subjectLine}`,
+      text:
+        `New enquiry from ${enquiry.name} (${enquiry.email}${enquiry.phone ? `, ${enquiry.phone}` : ""})\n\n` +
+        `${enquiry.message}\n\n` +
+        `Reply to this email to answer them, or open: ${url}`,
+      html: layout(
+        "New contact form enquiry",
+        detailsTable([
+          ["Name", enquiry.name],
+          ["Email", enquiry.email],
+          ["Phone", enquiry.phone || "-"],
+          ["Subject", subjectLine],
+        ]) +
+          `<p style="white-space:pre-wrap;background:#f9fafb;padding:12px;border-radius:6px">${escapeHtml(enquiry.message)}</p>` +
+          `<p style="color:#6b7280">Reply to this email to answer ${escapeHtml(enquiry.name)} directly.</p>` +
+          button(url, "Open enquiries")
+      ),
+    });
+  } catch (err) {
+    console.error(`Enquiry notification failed: ${err.message}`);
+  }
+};

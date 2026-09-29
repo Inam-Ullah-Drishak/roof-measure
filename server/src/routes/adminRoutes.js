@@ -17,6 +17,11 @@ import {
   uploadReportFiles,
   deleteReportFile,
 } from "../controllers/fileController.js";
+import {
+  getEnquiries,
+  updateEnquiryStatus,
+  deleteEnquiry,
+} from "../controllers/enquiryController.js";
 import { uploadReportFiles as uploadMiddleware } from "../middleware/uploadMiddleware.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
@@ -44,5 +49,10 @@ router.patch("/orders/:id/notes", updateAdminNotes);
 // Report files
 router.post("/orders/:id/files", uploadMiddleware, uploadReportFiles);
 router.delete("/orders/:id/files/:fileId", deleteReportFile);
+
+// Contact form enquiries
+router.get("/enquiries", getEnquiries);
+router.patch("/enquiries/:id", updateEnquiryStatus);
+router.delete("/enquiries/:id", deleteEnquiry);
 
 export default router;

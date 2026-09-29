@@ -24,7 +24,7 @@ const getTransporter = () => {
 };
 
 // Usage: await sendEmail({ to, subject, text, html })
-const sendEmail = async ({ to, subject, text, html }) => {
+const sendEmail = async ({ to, subject, text, html, replyTo }) => {
   // No SMTP configured (local development): print the email instead
   if (!process.env.SMTP_HOST) {
     console.log(
@@ -39,6 +39,7 @@ const sendEmail = async ({ to, subject, text, html }) => {
     subject,
     text,
     html,
+    replyTo,
   });
 };
 

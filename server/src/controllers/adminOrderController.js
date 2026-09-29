@@ -1,5 +1,6 @@
 import Order, { ORDER_STATUSES } from "../models/Order.js";
 import User from "../models/User.js";
+import Enquiry from "../models/Enquiry.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { expireCheckoutSession } from "./paymentController.js";
 import { notifyReportReady } from "../utils/notifications.js";
@@ -226,7 +227,7 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     1
   );
 
-  const [statusCounts, revenue, todayOrders, totalCustomers] =
+  const [statusCounts, revenue, todayOrders, totalCustomers, newEnquiries] =
     await Promise.all([
       Order.aggregate([{ $group: { _id: "$status", count: { $sum: 1 } } }]),
       Order.aggregate([
@@ -245,6 +246,7 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
       ]),
       Order.countDocuments({ createdAt: { $gte: startOfToday } }),
       User.countDocuments({ role: "customer" }),
+      Enquiry.countDocuments({ status: "new" }),
     ]);
 
   const orders = { pending: 0, in_progress: 0, completed: 0, cancelled: 0 };
@@ -254,6 +256,7 @@ export const getDashboardStats = asyncHandler(async (req, res) => {
     orders,
     todayOrders,
     totalCustomers,
+    newEnquiries,
     revenue: {
       allTime: revenue[0]?.allTime || 0,
       thisMonth: revenue[0]?.thisMonth || 0,

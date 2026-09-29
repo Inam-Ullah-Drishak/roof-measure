@@ -93,7 +93,7 @@ export const deleteReportFile = asyncHandler(async (req, res) => {
 });
 
 // @route   GET /api/orders/:orderId/files/:fileId/download
-// @access  Order owner (customer) or admin
+// @access  Order owner (customer, after payment) or admin
 export const downloadReportFile = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.orderId);
 
@@ -107,6 +107,13 @@ export const downloadReportFile = asyncHandler(async (req, res) => {
   // Same message as "not found" so customers can't probe other orders
   if (!isAdmin && !isOwner) {
     return res.status(404).json({ message: "File not found" });
+  }
+
+  // Customers must pay before downloading
+  if (!isAdmin && order.payment.status !== "paid") {
+    return res.status(402).json({
+      message: "Please complete payment to download this report",
+    });
   }
 
   const file = order.reportFiles.id(req.params.fileId);

@@ -7,15 +7,26 @@ import morgan from "morgan";
 import authRoutes from "./routes/authRoutes.js";
 import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
+import paymentRoutes from "./routes/paymentRoutes.js";
+import { handleStripeWebhook } from "./controllers/webhookController.js";
 
 const app = express();
 
-// Middleware
+// Security headers and logging
 app.use(helmet());
+if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
+
+// Stripe webhook: MUST come before express.json() to receive the raw body
+app.post(
+  "/api/payments/webhook",
+  express.raw({ type: "application/json" }),
+  handleStripeWebhook
+);
+
+// Middleware for all other routes
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 app.use(express.json());
 app.use(cookieParser());
-if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 
 // Health check
 app.get("/api/health", (req, res) => {
@@ -26,6 +37,7 @@ app.get("/api/health", (req, res) => {
 app.use("/api/auth", authRoutes);
 app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/payments", paymentRoutes);
 
 // 404 handler
 app.use((req, res) => {
@@ -62,6 +74,12 @@ app.use((err, req, res, next) => {
   if (err.type === "entity.parse.failed") {
     statusCode = 400;
     message = "Invalid JSON in request body";
+  }
+
+  // Stripe errors (e.g. invalid API key)
+  if (err.type?.startsWith?.("Stripe")) {
+    statusCode = err.statusCode || 502;
+    message = `Payment provider error: ${err.message}`;
   }
 
   if (statusCode === 500) console.error(err);

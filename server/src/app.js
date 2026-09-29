@@ -4,6 +4,8 @@ import cookieParser from "cookie-parser";
 import helmet from "helmet";
 import morgan from "morgan";
 
+import authRoutes from "./routes/authRoutes.js";
+
 const app = express();
 
 // Middleware
@@ -17,6 +19,9 @@ if (process.env.NODE_ENV === "development") app.use(morgan("dev"));
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", message: "API is running" });
 });
+
+// Routes
+app.use("/api/auth", authRoutes);
 
 // 404 handler
 app.use((req, res) => {

@@ -9,6 +9,8 @@ import orderRoutes from "./routes/orderRoutes.js";
 import adminRoutes from "./routes/adminRoutes.js";
 import paymentRoutes from "./routes/paymentRoutes.js";
 import contactRoutes from "./routes/contactRoutes.js";
+import postRoutes from "./routes/postRoutes.js";
+import newsletterRoutes from "./routes/newsletterRoutes.js";
 import { handleStripeWebhook } from "./controllers/webhookController.js";
 import { apiLimiter } from "./middleware/rateLimiters.js";
 
@@ -48,6 +50,8 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/admin", adminRoutes);
 app.use("/api/payments", paymentRoutes);
 app.use("/api/contact", contactRoutes);
+app.use("/api/posts", postRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 
 // 404 handler
 app.use((req, res) => {

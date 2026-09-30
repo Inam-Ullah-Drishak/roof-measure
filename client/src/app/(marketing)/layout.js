@@ -1,5 +1,6 @@
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
+import MobileOrderBar from "@/components/layout/MobileOrderBar";
 
 // Public website pages: header + footer
 export default function MarketingLayout({ children }) {
@@ -16,6 +17,7 @@ export default function MarketingLayout({ children }) {
         {children}
       </main>
       <Footer />
+      <MobileOrderBar />
     </>
   );
 }

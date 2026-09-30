@@ -156,7 +156,9 @@ export const deleteFile = async (key) => {
 
 // Send a file to the browser as a download with a friendly name.
 // Files are streamed through the API so the owner/payment checks always apply.
-export const sendFile = async (res, key, downloadName) => {
+// inline: show it in the browser (blog images) and let browsers cache it for a
+// year; keys are random and never reused, so the content never changes.
+export const sendFile = async (res, key, downloadName, { inline = false } = {}) => {
   if (useCloudinary) {
     assertValidKey(key);
 
@@ -180,17 +182,20 @@ export const sendFile = async (res, key, downloadName) => {
       Readable.fromWeb(upstream.body),
       upstream.headers.get("content-length"),
       downloadName,
-      key
+      key,
+      inline
     );
   }
 
   if (!useS3) {
     const fullPath = localPath(key);
     await new Promise((resolve, reject) => {
-      res.download(fullPath, downloadName, (err) => {
+      const done = (err) => {
         if (!err || res.headersSent) return resolve();
         reject(err.code === "ENOENT" || err.status === 404 ? notFound() : err);
-      });
+      };
+      if (inline) return res.sendFile(fullPath, { maxAge: "1y", immutable: true }, done);
+      res.download(fullPath, downloadName, done);
     });
     return;
   }
@@ -209,11 +214,16 @@ export const sendFile = async (res, key, downloadName) => {
     throw err;
   }
 
-  return streamToResponse(res, object.Body, object.ContentLength, downloadName, key);
+  return streamToResponse(res, object.Body, object.ContentLength, downloadName, key, inline);
 };
 
-const streamToResponse = async (res, body, length, downloadName, key) => {
-  res.attachment(downloadName); // sets Content-Disposition and Content-Type
+const streamToResponse = async (res, body, length, downloadName, key, inline = false) => {
+  if (inline) {
+    res.type(path.extname(key));
+    res.setHeader("Cache-Control", "public, max-age=31536000, immutable");
+  } else {
+    res.attachment(downloadName); // sets Content-Disposition and Content-Type
+  }
   if (length) res.setHeader("Content-Length", length);
 
   try {

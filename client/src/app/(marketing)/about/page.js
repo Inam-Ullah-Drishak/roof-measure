@@ -2,6 +2,7 @@ import Link from "next/link";
 import Button from "@/components/ui/Button";
 import PageHero from "@/components/layout/PageHero";
 import RoofDiagram from "@/components/home/RoofDiagram";
+import StatsBar from "@/components/marketing/StatsBar";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import { orderHref } from "@/components/marketing/PricingCards";
 import { site } from "@/config/site";
@@ -46,13 +47,7 @@ const whyAerial = [
   "Files that import straight into your software",
 ];
 
-// PLACEHOLDER: replace the stats and team below with the client's real details
-const stats = [
-  ["10,000+", "Roofs measured"],
-  ["2016", "Founded"],
-  ["50", "States covered"],
-  ["98%", "Customer satisfaction"],
-];
+// PLACEHOLDER: replace the team below with the client's real details (stats live in site.js)
 
 const team = [
   { name: "Alex Morgan", role: "Founder & CEO", bio: "Former roofing contractor who started the company to take the guesswork out of estimates." },
@@ -91,17 +86,7 @@ export default function AboutPage() {
         text={`${site.name} helps roofing and insurance professionals get accurate roof measurements without a site visit, so they can spend less time on ladders and more time winning jobs.`}
       />
 
-      {/* Stats */}
-      <section className="border-b border-slate-200 bg-white">
-        <dl className="mx-auto grid max-w-7xl grid-cols-2 gap-8 px-4 py-10 sm:px-6 lg:grid-cols-4 lg:px-8">
-          {stats.map(([value, label]) => (
-            <div key={label} className="flex flex-col-reverse text-center">
-              <dt className="mt-1 text-sm text-slate-500">{label}</dt>
-              <dd className="font-display text-3xl font-extrabold text-brand-700 sm:text-4xl">{value}</dd>
-            </div>
-          ))}
-        </dl>
-      </section>
+      <StatsBar />
 
       {/* Mission */}
       <section className="py-16 sm:py-20">

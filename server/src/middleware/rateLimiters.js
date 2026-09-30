@@ -46,3 +46,9 @@ export const contactLimiter = limiter({
   limit: 5,
   message: "Too many messages sent. Please try again later or call us directly.",
 });
+
+export const newsletterLimiter = limiter({
+  windowMinutes: 60,
+  limit: 10,
+  message: "Too many signups from this network. Please try again later.",
+});

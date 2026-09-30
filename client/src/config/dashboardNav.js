@@ -12,6 +12,8 @@ export const adminNav = [
   { href: "/admin/orders", label: "Orders", icon: "list" },
   { href: "/admin/customers", label: "Customers", icon: "users" },
   { href: "/admin/enquiries", label: "Enquiries", icon: "mail" },
+  { href: "/admin/blog", label: "Blog", icon: "pen" },
+  { href: "/admin/subscribers", label: "Subscribers", icon: "inbox" },
   { href: "/admin/team", label: "Team", icon: "team" },
   { href: "/admin/account", label: "Account", icon: "user" },
 ];

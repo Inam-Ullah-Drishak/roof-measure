@@ -3,6 +3,13 @@ import Button from "@/components/ui/Button";
 import RoofDiagram from "@/components/home/RoofDiagram";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import PricingCards, { orderHref } from "@/components/marketing/PricingCards";
+import Testimonials from "@/components/marketing/Testimonials";
+import StatsBar from "@/components/marketing/StatsBar";
+import WorksWith from "@/components/marketing/WorksWith";
+import WhyUs from "@/components/marketing/WhyUs";
+import ServiceArea from "@/components/marketing/ServiceArea";
+import FaqPreview from "@/components/marketing/FaqPreview";
+import BlogPreview from "@/components/blog/BlogPreview";
 import { site, pricing } from "@/config/site";
 
 export const metadata = {
@@ -104,6 +111,9 @@ export default function HomePage() {
         </div>
       </section>
 
+      <StatsBar />
+      <WorksWith />
+
       {/* Who it's for */}
       <section className="py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
@@ -155,8 +165,10 @@ export default function HomePage() {
         </div>
       </section>
 
+      <WhyUs />
+
       {/* Report types */}
-      <section className="py-20 sm:py-24">
+      <section className="bg-slate-50 py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <SectionHeading
             eyebrow="Reports & pricing"
@@ -174,7 +186,7 @@ export default function HomePage() {
       </section>
 
       {/* Formats */}
-      <section className="bg-slate-50 py-20 sm:py-24">
+      <section className="py-20 sm:py-24">
         <div className="mx-auto grid max-w-7xl items-center gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
           <div>
             <SectionHeading
@@ -199,6 +211,11 @@ export default function HomePage() {
           </dl>
         </div>
       </section>
+
+      <ServiceArea className="bg-slate-50" />
+      <Testimonials />
+      <FaqPreview className="bg-slate-50" />
+      <BlogPreview />
 
       {/* CTA */}
       <section className="py-20 sm:py-24">

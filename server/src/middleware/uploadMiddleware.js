@@ -63,3 +63,42 @@ export const uploadReportFiles = (req, res, next) => {
     next(err);
   });
 };
+// ---------- Blog images ----------
+
+const IMAGE_EXTENSIONS = [".jpg", ".jpeg", ".png", ".webp", ".gif"];
+const MAX_IMAGE_MB = 5;
+
+const imageUpload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: MAX_IMAGE_MB * 1024 * 1024, files: 1 },
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname).toLowerCase();
+    if (IMAGE_EXTENSIONS.includes(ext) && file.mimetype.startsWith("image/")) {
+      cb(null, true);
+    } else {
+      cb(
+        Object.assign(
+          new Error(`Only images are allowed (${IMAGE_EXTENSIONS.join(", ")})`),
+          { statusCode: 400 }
+        )
+      );
+    }
+  },
+});
+
+// One image in a form field named "image"
+export const uploadBlogImage = (req, res, next) => {
+  imageUpload.single("image")(req, res, (err) => {
+    if (!err) return next();
+
+    if (err instanceof multer.MulterError) {
+      const messages = {
+        LIMIT_FILE_SIZE: `Images must be under ${MAX_IMAGE_MB} MB`,
+        LIMIT_UNEXPECTED_FILE: `The image must be sent in a field named "image"`,
+      };
+      return res.status(400).json({ message: messages[err.code] || err.message });
+    }
+
+    next(err);
+  });
+};

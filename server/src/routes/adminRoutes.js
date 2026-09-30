@@ -28,7 +28,23 @@ import {
   updateTeamMember,
   resendInvite,
 } from "../controllers/adminTeamController.js";
-import { uploadReportFiles as uploadMiddleware } from "../middleware/uploadMiddleware.js";
+import {
+  getAllPosts,
+  getPostById,
+  createPost,
+  updatePost,
+  deletePost,
+  uploadPostImage,
+} from "../controllers/postController.js";
+import {
+  uploadReportFiles as uploadMiddleware,
+  uploadBlogImage,
+} from "../middleware/uploadMiddleware.js";
+import {
+  getSubscribers,
+  exportSubscribers,
+  deleteSubscriber,
+} from "../controllers/subscriberController.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
@@ -63,6 +79,19 @@ router.get("/team", adminOnly, getTeam);
 router.post("/team", adminOnly, addTeamMember);
 router.patch("/team/:id", adminOnly, updateTeamMember);
 router.post("/team/:id/invite", adminOnly, resendInvite);
+
+// Blog
+router.get("/posts", adminOnly, getAllPosts);
+router.post("/posts", adminOnly, createPost);
+router.post("/posts/images", adminOnly, uploadBlogImage, uploadPostImage);
+router.get("/posts/:id", adminOnly, getPostById);
+router.patch("/posts/:id", adminOnly, updatePost);
+router.delete("/posts/:id", adminOnly, deletePost);
+
+// Newsletter subscribers
+router.get("/subscribers", adminOnly, getSubscribers);
+router.get("/subscribers/export", adminOnly, exportSubscribers);
+router.delete("/subscribers/:id", adminOnly, deleteSubscriber);
 
 // Contact form enquiries
 router.get("/enquiries", adminOnly, getEnquiries);

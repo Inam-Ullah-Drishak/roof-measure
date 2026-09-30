@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Logo from "@/components/ui/Logo";
+import NewsletterForm from "@/components/layout/NewsletterForm";
 import { site } from "@/config/site";
 
 const columns = [
@@ -19,6 +20,7 @@ const columns = [
       { href: "/how-it-works", label: "How it works" },
       { href: "/pricing", label: "Pricing" },
       { href: "/faq", label: "FAQ" },
+      { href: "/blog", label: "Blog" },
     ],
   },
   {
@@ -35,7 +37,8 @@ const columns = [
 export default function Footer() {
   return (
     <footer className="bg-brand-950 text-slate-300">
-      <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+      {/* Extra bottom space on mobile so the sticky order bar never covers the footer */}
+      <div className="mx-auto max-w-7xl px-4 pb-28 pt-14 sm:px-6 lg:px-8 lg:pb-14">
         <div className="grid gap-10 lg:grid-cols-5">
           <div className="lg:col-span-2">
             <Logo light />
@@ -69,7 +72,11 @@ export default function Footer() {
           ))}
         </div>
 
-        <div className="mt-12 flex flex-col gap-4 border-t border-white/10 pt-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
+        <div className="mt-12 border-t border-white/10 pt-8 lg:max-w-md">
+          <NewsletterForm />
+        </div>
+
+        <div className="mt-10 flex flex-col gap-4 border-t border-white/10 pt-8 text-sm text-slate-500 sm:flex-row sm:items-center sm:justify-between">
           <p>© {new Date().getFullYear()} {site.name}. All rights reserved.</p>
           <div className="flex gap-6">
             <Link href="/privacy" className="hover:text-white">Privacy policy</Link>

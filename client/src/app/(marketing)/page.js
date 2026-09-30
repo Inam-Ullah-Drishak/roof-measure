@@ -1,6 +1,8 @@
 import Link from "next/link";
 import Button from "@/components/ui/Button";
 import RoofDiagram from "@/components/home/RoofDiagram";
+import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
+import PricingCards, { orderHref } from "@/components/marketing/PricingCards";
 import { site, pricing } from "@/config/site";
 
 export const metadata = {
@@ -76,7 +78,7 @@ export default function HomePage() {
               and every ridge, hip and valley, delivered as PDF or ready for Xactimate.
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
-              <Button href="/register" variant="accent" size="lg">Order a report</Button>
+              <Button href={orderHref()} variant="accent" size="lg">Order a report</Button>
               <Button href="/sample-reports" variant="light" size="lg">See a sample report</Button>
             </div>
             <ul className="mt-10 grid gap-3 text-sm text-slate-300 sm:grid-cols-2">
@@ -161,40 +163,8 @@ export default function HomePage() {
             title="Simple, per-report pricing"
             text="Pay per report. Add rush delivery or extra file formats only when you need them."
           />
-          <div className="mt-14 grid gap-6 lg:grid-cols-3">
-            {pricing.reportTypes.map((r) => (
-              <div
-                key={r.id}
-                className={`relative flex flex-col rounded-2xl p-8 ${
-                  r.popular ? "bg-brand-950 text-slate-300 shadow-xl ring-2 ring-brand-600" : "border border-slate-200"
-                }`}
-              >
-                {r.popular && (
-                  <span className="absolute -top-3 left-8 rounded-full bg-accent-500 px-3 py-1 text-xs font-bold text-brand-950">
-                    Most popular
-                  </span>
-                )}
-                <h3 className={`text-xl font-semibold ${r.popular ? "text-white" : ""}`}>{r.name}</h3>
-                <p className={`mt-1 text-sm ${r.popular ? "text-slate-400" : "text-slate-500"}`}>{r.audience}</p>
-                <p className="mt-6 flex items-baseline gap-1">
-                  <span className={`font-display text-4xl font-bold ${r.popular ? "text-white" : "text-slate-900"}`}>
-                    ${r.price}
-                  </span>
-                  <span className="text-sm">/ report</span>
-                </p>
-                <ul className="mt-6 flex-1 space-y-3 text-sm">
-                  {r.features.map((f) => (
-                    <li key={f} className="flex gap-2">
-                      <CheckIcon className={`h-5 w-5 flex-none ${r.popular ? "text-accent-400" : "text-brand-600"}`} />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Button href="/register" variant={r.popular ? "accent" : "outline"} className="mt-8 w-full">
-                  Order {r.name}
-                </Button>
-              </div>
-            ))}
+          <div className="mt-14">
+            <PricingCards />
           </div>
           <p className="mt-8 text-center text-sm text-slate-500">
             PDF included with every report. ESX, XML and DXF files available as add-ons.{" "}
@@ -249,23 +219,5 @@ export default function HomePage() {
         </div>
       </section>
     </>
-  );
-}
-
-function SectionHeading({ eyebrow, title, text, align = "center" }) {
-  return (
-    <div className={align === "center" ? "mx-auto max-w-2xl text-center" : "max-w-xl"}>
-      <p className="text-sm font-semibold uppercase tracking-wider text-brand-600">{eyebrow}</p>
-      <h2 className="mt-3 text-3xl font-bold sm:text-4xl">{title}</h2>
-      <p className="mt-4 text-lg leading-8 text-slate-600">{text}</p>
-    </div>
-  );
-}
-
-function CheckIcon({ className }) {
-  return (
-    <svg className={className} viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-      <path fillRule="evenodd" d="M16.7 5.3a1 1 0 0 1 0 1.4l-8 8a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.4L8 12.6l7.3-7.3a1 1 0 0 1 1.4 0Z" clipRule="evenodd" />
-    </svg>
   );
 }

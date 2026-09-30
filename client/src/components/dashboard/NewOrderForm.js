@@ -36,9 +36,9 @@ const validate = (f) => {
   return errors;
 };
 
-export default function NewOrderForm() {
+export default function NewOrderForm({ defaults = {} }) {
   const router = useRouter();
-  const [form, setForm] = useState(initial);
+  const [form, setForm] = useState({ ...initial, ...defaults });
   const [errors, setErrors] = useState({});
   const [serverError, setServerError] = useState("");
   const [submitting, setSubmitting] = useState(false);

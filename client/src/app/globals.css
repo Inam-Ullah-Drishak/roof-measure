@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* Brand colors and fonts. Change these to rebrand the whole site. */
+@theme {
+  --color-brand-50: #eef4ff;
+  --color-brand-100: #dbe6fe;
+  --color-brand-200: #bfd3fe;
+  --color-brand-500: #3b6ff6;
+  --color-brand-600: #2553e0;
+  --color-brand-700: #1d41b5;
+  --color-brand-800: #1b3a8f;
+  --color-brand-900: #0f1f4d;
+  --color-brand-950: #0a1433;
+
+  --color-accent-400: #fbb040;
+  --color-accent-500: #f59e0b;
+  --color-accent-600: #d97706;
+
+  --font-sans: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-heading), ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-slate-700 antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply font-display text-slate-900 tracking-tight;
+  }
+
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-brand-500;
+  }
+}

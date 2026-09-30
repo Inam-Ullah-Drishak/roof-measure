@@ -1,7 +1,8 @@
 import Link from "next/link";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import PageHero from "@/components/layout/PageHero";
-import RoofDiagram from "@/components/home/RoofDiagram";
+import { photos } from "@/assets/images";
 import StatsBar from "@/components/marketing/StatsBar";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import { orderHref } from "@/components/marketing/PricingCards";
@@ -108,9 +109,13 @@ export default function AboutPage() {
               </p>
             </div>
           </div>
-          <div className="rounded-2xl bg-brand-950 p-3 shadow-xl">
-            <RoofDiagram className="h-auto w-full" />
-          </div>
+          <Image
+            src={photos.drone.src}
+            alt={photos.drone.alt}
+            placeholder="blur"
+            sizes="(min-width: 1024px) 600px, 100vw"
+            className="aspect-[16/10] h-auto w-full rounded-2xl object-cover shadow-xl"
+          />
         </div>
       </section>
 

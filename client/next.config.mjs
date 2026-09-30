@@ -6,6 +6,15 @@ const API_URL = process.env.API_URL || "http://localhost:5000";
 const nextConfig = {
   reactCompiler: true,
 
+  // Only these local paths can go through the image optimizer:
+  // our own photos (static imports) and blog images served by the API.
+  images: {
+    localPatterns: [
+      { pathname: "/_next/static/media/**", search: "" },
+      { pathname: "/api/posts/images/**", search: "" },
+    ],
+  },
+
   // The browser calls /api/... on this same domain and Next forwards it to
   // the Express API. Same domain = the login cookie just works, no CORS issues.
   async rewrites() {

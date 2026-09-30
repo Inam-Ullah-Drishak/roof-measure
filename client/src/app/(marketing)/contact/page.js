@@ -1,8 +1,10 @@
 import Link from "next/link";
+import Image from "next/image";
 import PageHero from "@/components/layout/PageHero";
 import ContactForm from "@/components/contact/ContactForm";
 import { site } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
+import { photos } from "@/assets/images";
 
 export const metadata = pageMetadata({
   title: "Contact Us",
@@ -70,6 +72,18 @@ export default function ContactPage() {
           </div>
 
           <aside className="space-y-6">
+            <figure className="relative overflow-hidden rounded-2xl">
+              <Image
+                src={photos.support.src}
+                alt={photos.support.alt}
+                placeholder="blur"
+                sizes="(min-width: 1024px) 400px, 100vw"
+                className="aspect-[4/3] h-auto w-full object-cover"
+              />
+              <figcaption className="absolute inset-x-0 bottom-0 bg-linear-to-t from-brand-950/90 to-transparent p-5 pt-12 text-sm font-semibold text-white">
+                Real people, real answers · {site.hours}
+              </figcaption>
+            </figure>
             <div className="rounded-2xl bg-slate-50 p-6 ring-1 ring-slate-200">
               <h2 className="text-lg font-semibold">Other ways to reach us</h2>
               <ul className="mt-5 space-y-5">

@@ -1,4 +1,6 @@
+import Image from "next/image";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
+import { photos } from "@/assets/images";
 import { site, pricing } from "@/config/site";
 
 const fromPrice = Math.min(...pricing.reportTypes.map((r) => r.price));
@@ -32,7 +34,27 @@ export default function WhyUs({ className = "" }) {
           text="See how an aerial report compares with measuring every roof by hand."
         />
 
-        <div className="mt-14 overflow-hidden rounded-3xl ring-1 ring-slate-200">
+        <div className="mt-14 grid gap-4 sm:grid-cols-2">
+          {[
+            { photo: photos.manualMeasuring, label: "Measuring by hand", tone: "bg-slate-900/80 text-white" },
+            { photo: photos.reportLaptop, label: `With ${site.name}`, tone: "bg-brand-600 text-white" },
+          ].map(({ photo, label, tone }) => (
+            <figure key={label} className="relative overflow-hidden rounded-2xl ring-1 ring-slate-200">
+              <Image
+                src={photo.src}
+                alt={photo.alt}
+                placeholder="blur"
+                sizes="(min-width: 1024px) 560px, (min-width: 640px) 50vw, 100vw"
+                className="aspect-[16/10] h-auto w-full object-cover"
+              />
+              <figcaption className={`absolute bottom-3 left-3 rounded-full px-3 py-1 text-sm font-semibold backdrop-blur ${tone}`}>
+                {label}
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+
+        <div className="mt-6 overflow-hidden rounded-3xl ring-1 ring-slate-200">
           <div className="hidden grid-cols-[10rem_1fr_1fr] bg-slate-50 text-sm font-semibold md:grid">
             <div className="px-6 py-4" />
             <div className="px-6 py-4 text-slate-500">Measuring by hand</div>

@@ -1,10 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import PageHero from "@/components/layout/PageHero";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import { orderHref } from "@/components/marketing/PricingCards";
 import { site } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
+import { photos } from "@/assets/images";
 
 export const metadata = pageMetadata({
   title: "How It Works",
@@ -210,6 +212,13 @@ export default function HowItWorksPage() {
               eyebrow="Your dashboard"
               title="Everything in one place"
               text="Your free account gives you a simple dashboard for all your orders and reports."
+            />
+            <Image
+              src={photos.reportLaptop.src}
+              alt={photos.reportLaptop.alt}
+              placeholder="blur"
+              sizes="(min-width: 1024px) 600px, 100vw"
+              className="mt-8 aspect-[16/9] h-auto w-full rounded-2xl object-cover shadow-lg ring-1 ring-slate-200"
             />
             <ul className="mt-8 grid gap-4 sm:grid-cols-2">
               {dashboard.map((d) => (

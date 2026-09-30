@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import Button from "@/components/ui/Button";
 import PostCard from "@/components/blog/PostCard";
@@ -105,12 +106,9 @@ export default async function BlogPostPage({ params }) {
 
         <div className="mx-auto max-w-3xl px-4 py-14 sm:px-6 lg:px-8">
           {post.coverImage?.url && (
-            // eslint-disable-next-line @next/next/no-img-element -- served by our API
-            <img
-              src={post.coverImage.url}
-              alt={post.coverImage.alt || ""}
-              className="-mt-2 mb-10 aspect-video w-full rounded-2xl object-cover shadow-lg ring-1 ring-slate-200"
-            />
+            <div className="relative -mt-2 mb-10 aspect-video overflow-hidden rounded-2xl shadow-lg ring-1 ring-slate-200">
+              <Image src={post.coverImage.url} alt={post.coverImage.alt || ""} fill priority sizes="(min-width: 768px) 720px, 100vw" className="object-cover" />
+            </div>
           )}
 
           <MarkdownContent>{post.content}</MarkdownContent>

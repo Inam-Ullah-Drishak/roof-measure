@@ -1,10 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
 import PageHero from "@/components/layout/PageHero";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import { orderHref } from "@/components/marketing/PricingCards";
 import { site, pricing } from "@/config/site";
 import { pageMetadata } from "@/lib/seo";
+import { photos } from "@/assets/images";
 
 export const metadata = pageMetadata({
   title: "Roof Measurement Services",
@@ -20,6 +22,7 @@ const priceOf = (id) => pricing.reportTypes.find((r) => r.id === id)?.price;
 const services = [
   {
     id: "residential",
+    photo: photos.residential,
     eyebrow: "Residential",
     title: "Residential roof reports",
     text: "Quote re-roofs and repairs without climbing a ladder. Our residential reports give you every measurement you need to order materials and price the job, from simple gables to complex cut-up roofs.",
@@ -36,6 +39,7 @@ const services = [
   },
   {
     id: "commercial",
+    photo: photos.commercial,
     eyebrow: "Commercial",
     title: "Commercial & multi-family reports",
     text: "Measure large, flat and low-slope roofs on warehouses, retail, apartment complexes and more. Multiple buildings on one property can be included in a single report.",
@@ -51,6 +55,7 @@ const services = [
   },
   {
     id: "insurance",
+    photo: photos.insurance,
     eyebrow: "Insurance & claims",
     title: "Reports for insurance claims",
     text: "Move claims faster with detailed, documented measurements. Add an ESX file and the measurements import straight into Xactimate, with no manual re-entry.",
@@ -135,6 +140,13 @@ export default function ServicesPage() {
         <section key={s.id} id={s.id} className={`scroll-mt-20 py-16 sm:py-20 ${i % 2 ? "bg-slate-50" : ""}`}>
           <div className="mx-auto grid max-w-7xl items-start gap-12 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
             <div className={i % 2 ? "lg:order-2" : ""}>
+              <Image
+                src={s.photo.src}
+                alt={s.photo.alt}
+                placeholder="blur"
+                sizes="(min-width: 1024px) 600px, 100vw"
+                className="mb-8 aspect-[16/10] h-auto w-full rounded-2xl object-cover shadow-lg ring-1 ring-slate-200"
+              />
               <SectionHeading align="left" eyebrow={s.eyebrow} title={s.title} text={s.text} />
               <p className="mt-6 text-sm text-slate-500">
                 <span className="font-semibold text-slate-700">Best for:</span> {s.audience}

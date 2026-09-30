@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import Button from "@/components/ui/Button";
-import RoofDiagram from "@/components/home/RoofDiagram";
+import { photos } from "@/assets/images";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import PricingCards, { orderHref } from "@/components/marketing/PricingCards";
 import Testimonials from "@/components/marketing/Testimonials";
@@ -21,21 +22,25 @@ export const metadata = {
 const audiences = [
   {
     title: "Roofing contractors",
+    photo: photos.residential,
     text: "Quote more jobs without climbing ladders. Get accurate squares, pitches and line lengths before you arrive.",
     icon: "M3 21h18M5 21V10l7-6 7 6v11M9 21v-6h6v6",
   },
   {
     title: "Insurance adjusters",
+    photo: photos.insurance,
     text: "Claim-ready reports with ESX files that import straight into Xactimate, so estimates move faster.",
     icon: "M12 3 4 6v6c0 5 3.5 8 8 9 4.5-1 8-4 8-9V6l-8-3Zm-3 9 2 2 4-4",
   },
   {
     title: "Solar installers",
+    photo: photos.solar,
     text: "Know every facet's pitch and area to plan panel layouts and send proposals the same day.",
     icon: "M12 3v2m0 14v2M5 12H3m18 0h-2M6.3 6.3 4.9 4.9m14.2 14.2-1.4-1.4M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4M16 12a4 4 0 1 1-8 0 4 4 0 0 1 8 0Z",
   },
   {
     title: "Property managers",
+    photo: photos.commercial,
     text: "Plan maintenance and budget replacements across your portfolio with consistent, documented measurements.",
     icon: "M4 21V5a2 2 0 0 1 2-2h8l6 6v12M14 3v6h6M8 13h8M8 17h5",
   },
@@ -99,8 +104,24 @@ export default function HomePage() {
           </div>
 
           <div className="relative">
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-3 shadow-2xl backdrop-blur">
-              <RoofDiagram className="h-auto w-full" />
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-2 shadow-2xl backdrop-blur">
+              <div className="relative overflow-hidden rounded-xl">
+                <Image
+                  src={photos.heroRoof.src}
+                  alt={photos.heroRoof.alt}
+                  priority
+                  placeholder="blur"
+                  sizes="(min-width: 1024px) 600px, 100vw"
+                  className="aspect-4/3 h-auto w-full object-cover"
+                />
+                <span className="absolute left-3 top-3 inline-flex items-center gap-2 rounded-full bg-brand-950/80 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                  <span className="h-2 w-2 rounded-full bg-green-400" />
+                  Measured from aerial imagery
+                </span>
+                <span className="absolute right-3 top-3 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold text-slate-900 shadow">
+                  Pitch 8/12
+                </span>
+              </div>
             </div>
             <div className="absolute -bottom-6 left-6 hidden rounded-xl bg-white p-4 shadow-xl sm:block">
               <p className="text-xs font-medium uppercase tracking-wide text-slate-500">Total roof area</p>
@@ -124,14 +145,26 @@ export default function HomePage() {
           />
           <div className="mt-14 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {audiences.map((a) => (
-              <div key={a.title} className="rounded-2xl border border-slate-200 p-6 transition-shadow hover:shadow-lg">
-                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
-                  <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-                    <path d={a.icon} />
-                  </svg>
+              <div key={a.title} className="group overflow-hidden rounded-2xl border border-slate-200 bg-white transition-shadow hover:shadow-lg">
+                <div className="relative aspect-4/3 overflow-hidden">
+                  <Image
+                    src={a.photo.src}
+                    alt={a.photo.alt}
+                    fill
+                    placeholder="blur"
+                    sizes="(min-width: 1024px) 300px, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
+                  />
                 </div>
-                <h3 className="mt-5 text-lg font-semibold">{a.title}</h3>
-                <p className="mt-2 text-sm leading-6 text-slate-600">{a.text}</p>
+                <div className="relative p-6 pt-8">
+                  <div className="absolute -top-6 left-6 flex h-12 w-12 items-center justify-center rounded-xl bg-brand-600 text-white shadow-lg ring-4 ring-white">
+                    <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+                      <path d={a.icon} />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-semibold">{a.title}</h3>
+                  <p className="mt-2 text-sm leading-6 text-slate-600">{a.text}</p>
+                </div>
               </div>
             ))}
           </div>
@@ -194,6 +227,13 @@ export default function HomePage() {
               eyebrow="Delivery formats"
               title="Works with the tools you already use"
               text="Every report comes as an easy-to-read PDF. Add the file formats your software needs and import measurements in seconds."
+            />
+            <Image
+              src={photos.reportTablet.src}
+              alt={photos.reportTablet.alt}
+              placeholder="blur"
+              sizes="(min-width: 1024px) 600px, 100vw"
+              className="mt-8 aspect-4/3 h-auto w-full rounded-2xl object-cover shadow-lg ring-1 ring-slate-200"
             />
           </div>
           <dl className="grid gap-4 sm:grid-cols-2">

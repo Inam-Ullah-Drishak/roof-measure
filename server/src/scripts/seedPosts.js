@@ -1,12 +1,35 @@
 import "dotenv/config";
+import fs from "fs/promises";
+import path from "path";
+import { fileURLToPath } from "url";
 import mongoose from "mongoose";
 import connectDB from "../config/db.js";
 import Post from "../models/Post.js";
 import User from "../models/User.js";
+import { saveFile } from "../utils/storage.js";
 
 // Adds the starter blog articles. Safe to run again: posts that already
 // exist (same URL) are skipped, so edits made in the admin panel are kept.
+// Cover photos come from seed-images/<slug>.jpg and are also added to
+// existing posts that don't have a cover yet.
 //   npm run seed-posts
+
+const IMAGE_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "seed-images");
+
+const coverAlts = {
+  "how-to-calculate-roofing-squares": "Bundles of asphalt shingles and a roofing nailer on a roof deck",
+  "roof-pitch-explained": "Steep shingle roof with a speed square resting near the ridge",
+  "aerial-vs-manual-roof-measurements": "A ladder against a gutter next to a drone flying over a roof",
+};
+
+// Uploads seed-images/<slug>.jpg to storage; returns the cover object or null
+const uploadCover = async (slug) => {
+  const file = path.join(IMAGE_DIR, `${slug}.jpg`);
+  const buffer = await fs.readFile(file).catch(() => null);
+  if (!buffer) return null;
+  const { key } = await saveFile(buffer, `${slug}.jpg`, "blog");
+  return { key, url: `/api/posts/images/${path.posix.basename(key)}`, alt: coverAlts[slug] || "" };
+};
 const starterPosts = [
   {
     "title": "How to Calculate Roofing Squares (With Examples)",
@@ -54,24 +77,40 @@ const seedPosts = async () => {
   try {
     const admin = await User.findOne({ role: "admin" }).sort({ createdAt: 1 });
     let added = 0;
+    let covers = 0;
 
     for (const data of starterPosts) {
-      if (await Post.exists({ slug: data.slug })) {
+      const existing = await Post.findOne({ slug: data.slug });
+
+      if (existing) {
+        if (!existing.coverImage?.key) {
+          const cover = await uploadCover(data.slug);
+          if (cover) {
+            existing.coverImage = cover;
+            await existing.save();
+            covers++;
+            console.log(`Added cover image: ${data.slug}`);
+            continue;
+          }
+        }
         console.log(`Skipped (already exists): ${data.slug}`);
         continue;
       }
+
+      const cover = await uploadCover(data.slug);
       await Post.create({
         ...data,
+        ...(cover && { coverImage: cover }),
         status: "published",
         publishedAt: new Date(`${data.publishedAt}T12:00:00Z`),
         author: admin?._id,
         updatedBy: admin?._id,
       });
       added++;
-      console.log(`Added: ${data.slug}`);
+      console.log(`Added: ${data.slug}${cover ? " (with cover)" : ""}`);
     }
 
-    console.log(`Done. ${added} post(s) added.`);
+    console.log(`Done. ${added} post(s) added, ${covers} cover image(s) added.`);
   } catch (err) {
     console.error(`Failed to seed posts: ${err.message}`);
     exitCode = 1;

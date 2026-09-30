@@ -12,5 +12,13 @@ export const adminNav = [
   { href: "/admin/orders", label: "Orders", icon: "list" },
   { href: "/admin/customers", label: "Customers", icon: "users" },
   { href: "/admin/enquiries", label: "Enquiries", icon: "mail" },
+  { href: "/admin/team", label: "Team", icon: "team" },
+  { href: "/admin/account", label: "Account", icon: "user" },
+];
+
+// Employees only work on the orders assigned to them
+export const employeeNav = [
+  { href: "/admin", label: "My work", icon: "chart", exact: true },
+  { href: "/admin/orders", label: "My orders", icon: "list" },
   { href: "/admin/account", label: "Account", icon: "user" },
 ];

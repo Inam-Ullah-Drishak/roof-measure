@@ -3,6 +3,11 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 
 export const RESET_TOKEN_MINUTES = 15;
+// Link emailed to a new team member to set their first password
+export const INVITE_TOKEN_MINUTES = 7 * 24 * 60;
+
+// Roles that can log into the admin panel. Employees only see orders assigned to them.
+export const STAFF_ROLES = ["admin", "employee"];
 
 export const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
@@ -39,13 +44,15 @@ const userSchema = new mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["customer", "admin"],
+      enum: ["customer", ...STAFF_ROLES],
       default: "customer",
     },
     isActive: {
       type: Boolean,
       default: true,
     },
+    // Team member added by an admin who hasn't set their password yet
+    invitePending: { type: Boolean, default: false },
     // Used to log out old sessions after a password change
     passwordChangedAt: { type: Date, select: false },
     // Only the SHA-256 hash is stored, the real token is sent by email
@@ -77,10 +84,10 @@ userSchema.methods.changedPasswordAfter = function (jwtIssuedAt) {
 };
 
 // Creates a reset token, stores its hash, and returns the plain token for the email
-userSchema.methods.createPasswordResetToken = function () {
+userSchema.methods.createPasswordResetToken = function (minutes = RESET_TOKEN_MINUTES) {
   const resetToken = crypto.randomBytes(32).toString("hex");
   this.passwordResetToken = hashToken(resetToken);
-  this.passwordResetExpires = new Date(Date.now() + RESET_TOKEN_MINUTES * 60 * 1000);
+  this.passwordResetExpires = new Date(Date.now() + minutes * 60 * 1000);
   return resetToken;
 };
 

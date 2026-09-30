@@ -4,20 +4,21 @@ import Order from "../models/Order.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { saveFile, deleteFile, sendFile } from "../utils/storage.js";
 import { FORMAT_BY_EXTENSION } from "../middleware/uploadMiddleware.js";
+import { staffOrderFilter } from "../utils/orderAccess.js";
 
 // Keep original names readable but safe
 const cleanFileName = (name) =>
   path.basename(name).replace(/[^\w.\- ]/g, "_").slice(0, 150);
 
 // @route   POST /api/admin/orders/:id/files
-// @access  Admin
+// @access  Admin, assigned employee
 // Form-data: files (up to 5)
 export const uploadReportFiles = asyncHandler(async (req, res) => {
   if (!req.files || req.files.length === 0) {
     return res.status(400).json({ message: "Please select at least one file" });
   }
 
-  const order = await Order.findById(req.params.id);
+  const order = await Order.findOne(staffOrderFilter(req, req.params.id));
 
   if (!order) {
     return res.status(404).json({ message: "Order not found" });
@@ -63,9 +64,9 @@ export const uploadReportFiles = asyncHandler(async (req, res) => {
 });
 
 // @route   DELETE /api/admin/orders/:id/files/:fileId
-// @access  Admin
+// @access  Admin, assigned employee
 export const deleteReportFile = asyncHandler(async (req, res) => {
-  const order = await Order.findById(req.params.id);
+  const order = await Order.findOne(staffOrderFilter(req, req.params.id));
 
   if (!order) {
     return res.status(404).json({ message: "Order not found" });
@@ -93,7 +94,7 @@ export const deleteReportFile = asyncHandler(async (req, res) => {
 });
 
 // @route   GET /api/orders/:orderId/files/:fileId/download
-// @access  Order owner (customer, after payment) or admin
+// @access  Order owner (customer, after payment), admin or assigned employee
 export const downloadReportFile = asyncHandler(async (req, res) => {
   const order = await Order.findById(req.params.orderId);
 
@@ -101,16 +102,18 @@ export const downloadReportFile = asyncHandler(async (req, res) => {
     return res.status(404).json({ message: "File not found" });
   }
 
-  const isAdmin = req.user.role === "admin";
+  const isStaff =
+    req.user.role === "admin" ||
+    (req.user.role === "employee" && Boolean(order.assignedTo?.equals(req.user._id)));
   const isOwner = order.customer.equals(req.user._id);
 
-  // Same message as "not found" so customers can't probe other orders
-  if (!isAdmin && !isOwner) {
+  // Same message as "not found" so users can't probe other orders
+  if (!isStaff && !isOwner) {
     return res.status(404).json({ message: "File not found" });
   }
 
   // Customers must pay before downloading
-  if (!isAdmin && order.payment.status !== "paid") {
+  if (!isStaff && order.payment.status !== "paid") {
     return res.status(402).json({
       message: "Please complete payment to download this report",
     });

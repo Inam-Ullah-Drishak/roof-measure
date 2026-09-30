@@ -9,7 +9,7 @@ import Alert from "@/components/ui/Alert";
 import { api } from "@/lib/api";
 import { useAuth, homeFor } from "@/context/AuthContext";
 
-export default function ResetPasswordForm({ token }) {
+export default function ResetPasswordForm({ token, welcome = false }) {
   const router = useRouter();
   const { setUser } = useAuth();
 
@@ -54,7 +54,8 @@ export default function ResetPasswordForm({ token }) {
     <form onSubmit={onSubmit} className="space-y-5" noValidate>
       <Alert type="error">
         {serverError}
-        {linkExpired && (
+        {linkExpired && welcome && " Ask your admin to resend your invite."}
+        {linkExpired && !welcome && (
           <>
             {" "}
             <Link href="/forgot-password" className="font-semibold underline">Request a new link</Link>
@@ -63,7 +64,7 @@ export default function ResetPasswordForm({ token }) {
       </Alert>
 
       <PasswordField
-        label="New password"
+        label={welcome ? "Password" : "New password"}
         name="password"
         autoComplete="new-password"
         required
@@ -74,7 +75,7 @@ export default function ResetPasswordForm({ token }) {
         hint="At least 8 characters"
       />
       <PasswordField
-        label="Confirm new password"
+        label={welcome ? "Confirm password" : "Confirm new password"}
         name="confirmPassword"
         autoComplete="new-password"
         required
@@ -84,7 +85,7 @@ export default function ResetPasswordForm({ token }) {
       />
 
       <Button type="submit" size="lg" className="w-full" loading={submitting}>
-        Set new password
+        {welcome ? "Set password and log in" : "Set new password"}
       </Button>
     </form>
   );

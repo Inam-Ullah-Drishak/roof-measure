@@ -20,7 +20,7 @@ router.get("/my", protect, authorize("customer"), getMyOrders);
 router.get("/my/:id", protect, authorize("customer"), getMyOrderById);
 router.patch("/my/:id/cancel", protect, authorize("customer"), cancelMyOrder);
 
-// Customer (own orders) or admin
+// Customer (own orders), admin or assigned employee
 router.get("/:orderId/files/:fileId/download", protect, downloadReportFile);
 
 export default router;

@@ -6,23 +6,25 @@ import { useAuth, homeFor } from "@/context/AuthContext";
 import { Spinner } from "@/components/ui/Button";
 
 // Shows children only to logged-in users with the right role.
+// role: "admin" or a list like ["admin", "employee"].
 // (The API also checks every request; this just keeps the UI in sync.)
 export default function RequireAuth({ role, children }) {
   const { user, loading } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
-  const allowed = user && (!role || user.role === role);
+  const roleOk = !role || [role].flat().includes(user?.role);
+  const allowed = user && roleOk;
 
   useEffect(() => {
     if (loading) return;
     if (!user) {
       // Cookie missing or expired
       router.replace(`/login?next=${encodeURIComponent(pathname)}`);
-    } else if (role && user.role !== role) {
+    } else if (!roleOk) {
       router.replace(homeFor(user));
     }
-  }, [loading, user, role, router, pathname]);
+  }, [loading, user, roleOk, router, pathname]);
 
   if (!allowed) {
     return (

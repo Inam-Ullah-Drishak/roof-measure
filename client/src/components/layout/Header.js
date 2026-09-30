@@ -7,7 +7,7 @@ import Logo from "@/components/ui/Logo";
 import Button from "@/components/ui/Button";
 import MenuButton from "@/components/ui/MenuButton";
 import { mainNav } from "@/config/site";
-import { useAuth, homeFor } from "@/context/AuthContext";
+import { useAuth, homeFor, isStaff } from "@/context/AuthContext";
 import { useMobileMenu, staggerDelay } from "@/lib/useMobileMenu";
 
 export default function Header() {
@@ -23,7 +23,7 @@ export default function Header() {
     <div className="h-10 w-40" aria-hidden="true" />
   ) : user ? (
     <Button href={homeFor(user)} size="md" onClick={close}>
-      {user.role === "admin" ? "Admin panel" : "My dashboard"}
+      {isStaff(user) ? "Admin panel" : "My dashboard"}
     </Button>
   ) : (
     <>

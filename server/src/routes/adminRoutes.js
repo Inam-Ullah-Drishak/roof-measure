@@ -22,37 +22,51 @@ import {
   updateEnquiryStatus,
   deleteEnquiry,
 } from "../controllers/enquiryController.js";
+import {
+  getTeam,
+  addTeamMember,
+  updateTeamMember,
+  resendInvite,
+} from "../controllers/adminTeamController.js";
 import { uploadReportFiles as uploadMiddleware } from "../middleware/uploadMiddleware.js";
 import { protect, authorize } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-// Every route in this file requires a logged-in admin
-router.use(protect, authorize("admin"));
+// Every route in this file requires a logged-in admin or employee.
+// Employees only reach orders assigned to them (checked in the controllers).
+router.use(protect, authorize("admin", "employee"));
+const adminOnly = authorize("admin");
 
-// Dashboard
+// Dashboard (employees get only their own order counts)
 router.get("/stats", getDashboardStats);
-
-// Customers
-router.get("/customers", getCustomers);
-router.get("/customers/:id", getCustomerById);
-router.patch("/customers/:id", updateCustomer);
-router.patch("/customers/:id/status", setCustomerStatus);
 
 // Orders
 router.get("/orders", getAllOrders);
 router.get("/orders/:id", getOrderById);
 router.patch("/orders/:id/status", updateOrderStatus);
-router.patch("/orders/:id/assign", assignOrder);
+router.patch("/orders/:id/assign", adminOnly, assignOrder);
 router.patch("/orders/:id/notes", updateAdminNotes);
 
 // Report files
 router.post("/orders/:id/files", uploadMiddleware, uploadReportFiles);
 router.delete("/orders/:id/files/:fileId", deleteReportFile);
 
+// Customers
+router.get("/customers", adminOnly, getCustomers);
+router.get("/customers/:id", adminOnly, getCustomerById);
+router.patch("/customers/:id", adminOnly, updateCustomer);
+router.patch("/customers/:id/status", adminOnly, setCustomerStatus);
+
+// Team (admins and employees)
+router.get("/team", adminOnly, getTeam);
+router.post("/team", adminOnly, addTeamMember);
+router.patch("/team/:id", adminOnly, updateTeamMember);
+router.post("/team/:id/invite", adminOnly, resendInvite);
+
 // Contact form enquiries
-router.get("/enquiries", getEnquiries);
-router.patch("/enquiries/:id", updateEnquiryStatus);
-router.delete("/enquiries/:id", deleteEnquiry);
+router.get("/enquiries", adminOnly, getEnquiries);
+router.patch("/enquiries/:id", adminOnly, updateEnquiryStatus);
+router.delete("/enquiries/:id", adminOnly, deleteEnquiry);
 
 export default router;

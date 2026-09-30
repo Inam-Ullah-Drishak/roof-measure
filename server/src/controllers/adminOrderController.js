@@ -1,9 +1,10 @@
 import Order, { ORDER_STATUSES } from "../models/Order.js";
-import User from "../models/User.js";
+import User, { STAFF_ROLES } from "../models/User.js";
 import Enquiry from "../models/Enquiry.js";
 import asyncHandler from "../utils/asyncHandler.js";
 import { expireCheckoutSession } from "./paymentController.js";
-import { notifyReportReady } from "../utils/notifications.js";
+import { notifyReportReady, notifyOrderAssigned } from "../utils/notifications.js";
+import { isEmployee, staffOrderFilter } from "../utils/orderAccess.js";
 
 const escapeRegex = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -15,10 +16,13 @@ const ALLOWED_TRANSITIONS = {
   cancelled: ["pending"], // restore a cancelled order
 };
 
+// Employees can't cancel or restore orders
+const EMPLOYEE_BLOCKED_STATUSES = ["cancelled"];
+
 // @route   GET /api/admin/orders
-// @access  Admin
+// @access  Admin, employee (only orders assigned to them)
 // Query: ?status=pending&paymentStatus=paid&search=RM-10001
-//        &customer=<id>&assignedTo=<id>&from=2026-09-01&to=2026-09-30
+//        &customer=<id>&assignedTo=<id|none>&from=2026-09-01&to=2026-09-30
 //        &page=1&limit=20
 export const getAllOrders = asyncHandler(async (req, res) => {
   const page = Math.max(parseInt(req.query.page) || 1, 1);
@@ -29,7 +33,13 @@ export const getAllOrders = asyncHandler(async (req, res) => {
   if (req.query.status) filter.status = req.query.status;
   if (req.query.paymentStatus) filter["payment.status"] = req.query.paymentStatus;
   if (req.query.customer) filter.customer = req.query.customer;
-  if (req.query.assignedTo) filter.assignedTo = req.query.assignedTo;
+  if (isEmployee(req.user)) {
+    filter.assignedTo = req.user._id;
+  } else if (req.query.assignedTo === "none") {
+    filter.assignedTo = null;
+  } else if (req.query.assignedTo) {
+    filter.assignedTo = req.query.assignedTo;
+  }
 
   if (req.query.from || req.query.to) {
     filter.createdAt = {};
@@ -79,9 +89,9 @@ export const getAllOrders = asyncHandler(async (req, res) => {
 });
 
 // @route   GET /api/admin/orders/:id
-// @access  Admin
+// @access  Admin, assigned employee
 export const getOrderById = asyncHandler(async (req, res) => {
-  const order = await Order.findById(req.params.id)
+  const order = await Order.findOne(staffOrderFilter(req, req.params.id))
     .select("+adminNotes")
     .populate("customer", "name email companyName phone isActive")
     .populate("assignedTo", "name email")
@@ -95,7 +105,7 @@ export const getOrderById = asyncHandler(async (req, res) => {
 });
 
 // @route   PATCH /api/admin/orders/:id/status
-// @access  Admin
+// @access  Admin, assigned employee (can't cancel or restore)
 // Body: { "status": "in_progress", "note": "Started measuring" }
 export const updateOrderStatus = asyncHandler(async (req, res) => {
   const { status, note } = req.body || {};
@@ -106,10 +116,19 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     });
   }
 
-  const order = await Order.findById(req.params.id);
+  const order = await Order.findOne(staffOrderFilter(req, req.params.id));
 
   if (!order) {
     return res.status(404).json({ message: "Order not found" });
+  }
+
+  if (
+    isEmployee(req.user) &&
+    (EMPLOYEE_BLOCKED_STATUSES.includes(status) || EMPLOYEE_BLOCKED_STATUSES.includes(order.status))
+  ) {
+    return res
+      .status(403)
+      .json({ message: "Only an admin can cancel or restore an order" });
   }
 
   if (order.status === status) {
@@ -139,7 +158,7 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
     order.cancelledAt = undefined;
   }
 
-  // Auto-assign to the admin who starts working on it
+  // Auto-assign to the person who starts working on it
   if (status === "in_progress" && !order.assignedTo) {
     order.assignedTo = req.user._id;
   }
@@ -159,31 +178,38 @@ export const updateOrderStatus = asyncHandler(async (req, res) => {
 
 // @route   PATCH /api/admin/orders/:id/assign
 // @access  Admin
-// Body: { "assignedTo": "<adminUserId>" }  or  { "assignedTo": null } to unassign
+// Body: { "assignedTo": "<adminOrEmployeeId>" }  or  { "assignedTo": null } to unassign
 export const assignOrder = asyncHandler(async (req, res) => {
   const { assignedTo } = req.body || {};
 
+  let assignee = null;
   if (assignedTo) {
-    const admin = await User.findOne({
+    assignee = await User.findOne({
       _id: assignedTo,
-      role: "admin",
+      role: { $in: STAFF_ROLES },
       isActive: true,
     });
-    if (!admin) {
-      return res
-        .status(400)
-        .json({ message: "Orders can only be assigned to an active admin" });
+    if (!assignee) {
+      return res.status(400).json({
+        message: "Orders can only be assigned to an active admin or employee",
+      });
     }
   }
 
-  const order = await Order.findByIdAndUpdate(
-    req.params.id,
-    { assignedTo: assignedTo || null },
-    { new: true }
-  ).populate("assignedTo", "name email");
+  const order = await Order.findById(req.params.id);
 
   if (!order) {
     return res.status(404).json({ message: "Order not found" });
+  }
+
+  const changed = String(order.assignedTo || "") !== String(assignee?._id || "");
+  order.assignedTo = assignee?._id || null;
+  await order.save();
+  await order.populate("assignedTo", "name email");
+
+  // Let the employee know, unless they assigned it to themselves
+  if (changed && assignee && !assignee._id.equals(req.user._id)) {
+    notifyOrderAssigned(order, assignee, req.user);
   }
 
   res.json({
@@ -193,7 +219,7 @@ export const assignOrder = asyncHandler(async (req, res) => {
 });
 
 // @route   PATCH /api/admin/orders/:id/notes
-// @access  Admin
+// @access  Admin, assigned employee
 // Body: { "adminNotes": "Customer called, wants it by Friday" }
 export const updateAdminNotes = asyncHandler(async (req, res) => {
   const { adminNotes } = req.body || {};
@@ -202,8 +228,8 @@ export const updateAdminNotes = asyncHandler(async (req, res) => {
     return res.status(400).json({ message: "adminNotes must be text" });
   }
 
-  const order = await Order.findByIdAndUpdate(
-    req.params.id,
+  const order = await Order.findOneAndUpdate(
+    staffOrderFilter(req, req.params.id),
     { adminNotes: adminNotes.trim() },
     { new: true }
   ).select("+adminNotes");
@@ -216,8 +242,18 @@ export const updateAdminNotes = asyncHandler(async (req, res) => {
 });
 
 // @route   GET /api/admin/stats
-// @access  Admin
+// @access  Admin (full stats), employee (only their own order counts)
 export const getDashboardStats = asyncHandler(async (req, res) => {
+  if (isEmployee(req.user)) {
+    const counts = await Order.aggregate([
+      { $match: { assignedTo: req.user._id } },
+      { $group: { _id: "$status", count: { $sum: 1 } } },
+    ]);
+    const orders = { pending: 0, in_progress: 0, completed: 0, cancelled: 0 };
+    counts.forEach((s) => (orders[s._id] = s.count));
+    return res.json({ orders });
+  }
+
   const startOfToday = new Date();
   startOfToday.setHours(0, 0, 0, 0);
 

@@ -194,6 +194,7 @@ export const resetPassword = asyncHandler(async (req, res) => {
   user.password = password;
   user.passwordResetToken = undefined;
   user.passwordResetExpires = undefined;
+  user.invitePending = false;
   await user.save();
 
   generateToken(res, user._id, user.role);

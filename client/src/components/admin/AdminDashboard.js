@@ -6,10 +6,17 @@ import Card, { EmptyState } from "@/components/ui/Card";
 import Alert from "@/components/ui/Alert";
 import PageHeader from "@/components/dashboard/PageHeader";
 import AdminOrdersTable from "@/components/admin/AdminOrdersTable";
+import EmployeeDashboard from "@/components/admin/EmployeeDashboard";
+import { useAuth } from "@/context/AuthContext";
 import { useApi } from "@/lib/useApi";
 import { formatMoney, ORDER_STATUS } from "@/lib/format";
 
 export default function AdminDashboard() {
+  const { user } = useAuth();
+  return user?.role === "employee" ? <EmployeeDashboard /> : <AdminOverview />;
+}
+
+function AdminOverview() {
   const stats = useApi("/admin/stats");
   // Paid orders nobody has started yet: the work queue
   const queue = useApi("/admin/orders?status=pending&paymentStatus=paid&limit=10");
@@ -67,7 +74,7 @@ export default function AdminDashboard() {
       <Card
         className="mt-8"
         title="Ready to start"
-        description="Paid orders that haven't been started yet."
+        description="Paid orders that haven't been started yet. Open one to assign it to your team."
         actions={
           <Link href="/admin/orders?status=pending&paymentStatus=paid" className="text-sm font-semibold text-brand-700 hover:text-brand-800">
             View all

@@ -195,3 +195,54 @@ export const notifyNewEnquiry = async (enquiry) => {
     console.error(`Enquiry notification failed: ${err.message}`);
   }
 };
+
+// Employee: an order was assigned to them
+export const notifyOrderAssigned = (order, assignee, assignedBy) => {
+  const url = adminOrderPageUrl(order);
+  const rush = order.turnaround === "rush";
+
+  sendInBackground({
+    to: assignee.email,
+    subject: `Order ${order.orderNumber} assigned to you${rush ? " (RUSH)" : ""}`,
+    text:
+      `Hi ${assignee.name},\n\n` +
+      `${assignedBy.name} assigned order ${order.orderNumber} to you.\n` +
+      `Property: ${formatAddress(order.property)}\n\n` +
+      `Open the order: ${url}`,
+    html: layout(
+      "New order assigned to you",
+      `<p>Hi ${escapeHtml(assignee.name)},</p>` +
+        `<p>${escapeHtml(assignedBy.name)} assigned this order to you${rush ? " — it's a <strong>rush</strong> order" : ""}.</p>` +
+        detailsTable(orderRows(order)) +
+        (order.specialInstructions
+          ? `<p><strong>Special instructions:</strong><br>${escapeHtml(order.specialInstructions)}</p>`
+          : "") +
+        button(url, "Open order")
+    ),
+  });
+};
+
+// New team member: link to set their password. Awaited (not background) so the
+// admin sees an error if the invite couldn't be sent.
+export const sendTeamInvite = (member, invitedBy, token, days) => {
+  const url = `${process.env.CLIENT_URL}/reset-password/${token}?welcome=1`;
+  const role = member.role === "admin" ? "an admin" : "a team member";
+
+  return sendEmail({
+    to: member.email,
+    subject: "You've been invited to the team",
+    text:
+      `Hi ${member.name},\n\n` +
+      `${invitedBy.name} added you as ${role}. Open the link below to set your password and log in:\n\n` +
+      `${url}\n\n` +
+      `This link expires in ${days} days.`,
+    html: layout(
+      "Welcome to the team",
+      `<p>Hi ${escapeHtml(member.name)},</p>` +
+        `<p>${escapeHtml(invitedBy.name)} added you as ${role}. Set your password to log in and see the orders assigned to you.</p>` +
+        button(url, "Set your password") +
+        `<p>Or copy this link: <br>${url}</p>` +
+        `<p>This link expires in ${days} days.</p>`
+    ),
+  });
+};

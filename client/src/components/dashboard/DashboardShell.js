@@ -17,6 +17,7 @@ const ICONS = {
   users: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 9a7 7 0 0 1 14 0M16 3.1a4 4 0 0 1 0 7.8M22 20a7 7 0 0 0-4-6.3",
   mail: "M3 6h18v12H3zM3 7l9 6 9-6",
   chart: "M4 20V10M10 20V4M16 20v-7M22 20H2",
+  team: "M4 8h16v11H4zM9 8V5h6v3M4 13h16",
 };
 
 // badges: { "/admin/enquiries": 3 } shows a count next to that link

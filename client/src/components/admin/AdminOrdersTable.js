@@ -2,8 +2,9 @@ import Link from "next/link";
 import { OrderStatusBadge, PaymentStatusBadge } from "@/components/ui/Badge";
 import { formatAddress, formatDate, formatMoney, reportTypeName } from "@/lib/format";
 
-// Orders table for admins: shows the customer and who it's assigned to
-export default function AdminOrdersTable({ orders, showCustomer = true }) {
+// Orders table for the panel: shows the customer and who it's assigned to.
+// customerLinks: link names to the customer page (admins only)
+export default function AdminOrdersTable({ orders, showCustomer = true, showAssigned = true, customerLinks = true }) {
   return (
     <>
       <div className="hidden overflow-x-auto lg:block">
@@ -15,7 +16,7 @@ export default function AdminOrdersTable({ orders, showCustomer = true }) {
               <th className="py-3 pr-4 font-semibold">Property</th>
               <th className="py-3 pr-4 font-semibold">Status</th>
               <th className="py-3 pr-4 font-semibold">Payment</th>
-              <th className="py-3 pr-4 font-semibold">Assigned</th>
+              {showAssigned && <th className="py-3 pr-4 font-semibold">Assigned</th>}
               <th className="py-3 text-right font-semibold">Total</th>
             </tr>
           </thead>
@@ -33,10 +34,12 @@ export default function AdminOrdersTable({ orders, showCustomer = true }) {
                 </td>
                 {showCustomer && (
                   <td className="max-w-48 py-3.5 pr-4 align-top">
-                    {o.customer ? (
+                    {o.customer && customerLinks ? (
                       <Link href={`/admin/customers/${o.customer._id}`} className="block truncate font-medium text-slate-900 hover:text-brand-700">
                         {o.customer.name}
                       </Link>
+                    ) : o.customer ? (
+                      <p className="truncate font-medium text-slate-900">{o.customer.name}</p>
                     ) : (
                       <span className="text-slate-400">Deleted user</span>
                     )}
@@ -49,7 +52,9 @@ export default function AdminOrdersTable({ orders, showCustomer = true }) {
                 </td>
                 <td className="py-3.5 pr-4 align-top"><OrderStatusBadge status={o.status} /></td>
                 <td className="py-3.5 pr-4 align-top"><PaymentStatusBadge status={o.payment?.status} /></td>
-                <td className="py-3.5 pr-4 align-top text-slate-600">{o.assignedTo?.name || <span className="text-slate-400">—</span>}</td>
+                {showAssigned && (
+                  <td className="py-3.5 pr-4 align-top text-slate-600">{o.assignedTo?.name || <span className="text-slate-400">—</span>}</td>
+                )}
                 <td className="py-3.5 text-right align-top font-medium text-slate-900">{formatMoney(o.price, o.currency)}</td>
               </tr>
             ))}
@@ -70,9 +75,10 @@ export default function AdminOrdersTable({ orders, showCustomer = true }) {
               </div>
               {showCustomer && <p className="mt-1 text-sm font-medium text-slate-800">{o.customer?.name}</p>}
               <p className="truncate text-sm text-slate-600">{formatAddress(o.property)}</p>
-              <div className="mt-2 flex flex-wrap gap-2">
+              <div className="mt-2 flex flex-wrap items-center gap-2">
                 <OrderStatusBadge status={o.status} />
                 <PaymentStatusBadge status={o.payment?.status} />
+                {showAssigned && o.assignedTo && <span className="text-xs text-slate-500">· {o.assignedTo.name}</span>}
               </div>
             </Link>
           </li>

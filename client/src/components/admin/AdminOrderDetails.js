@@ -33,6 +33,9 @@ const actionLabel = (from, to) =>
 
 const ALLOWED_FILES = ".pdf,.esx,.xml,.dxf,.jpg,.jpeg,.png";
 
+// Employees can't cancel or restore orders (same rule as the server)
+const EMPLOYEE_BLOCKED = ["cancelled"];
+
 export default function AdminOrderDetails({ id }) {
   const { data, error, loading, reload } = useApi(`/admin/orders/${id}`);
   const order = data?.order;
@@ -45,7 +48,7 @@ export default function AdminOrderDetails({ id }) {
     return (
       <div className="py-16 text-center">
         <h1 className="text-2xl font-bold">Order not found</h1>
-        <p className="mt-2 text-slate-600">{error?.status === 0 ? error.message : "This order doesn't exist or was removed."}</p>
+        <p className="mt-2 text-slate-600">{error?.status === 0 ? error.message : "This order doesn't exist, was removed, or isn't assigned to you."}</p>
         <Button href="/admin/orders" variant="outline" className="mt-6">Back to orders</Button>
       </div>
     );
@@ -137,11 +140,15 @@ export default function AdminOrderDetails({ id }) {
 }
 
 function StatusPanel({ order, onDone }) {
+  const { user } = useAuth();
   const [note, setNote] = useState("");
   const [busy, setBusy] = useState("");
   const [error, setError] = useState("");
 
-  const options = NEXT_STATUSES[order.status] || [];
+  const isEmployee = user?.role === "employee";
+  const options = (NEXT_STATUSES[order.status] || []).filter(
+    (s) => !isEmployee || (!EMPLOYEE_BLOCKED.includes(s) && !EMPLOYEE_BLOCKED.includes(order.status))
+  );
   const noFiles = order.reportFiles.length === 0;
 
   const change = async (status) => {
@@ -179,6 +186,10 @@ function StatusPanel({ order, onDone }) {
         placeholder="e.g. Measured from 2025 imagery"
         className="block w-full rounded-lg border border-slate-300 px-3.5 py-2.5 text-sm shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
       />
+
+      {isEmployee && order.status === "cancelled" && (
+        <p className="mt-4 text-sm text-slate-500">This order was cancelled. Only an admin can restore it.</p>
+      )}
 
       <div className="mt-4 flex flex-wrap gap-2">
         {options.map((status) => {
@@ -352,7 +363,7 @@ function NotesPanel({ order }) {
   };
 
   return (
-    <Card title="Internal notes" description="Only admins can see these.">
+    <Card title="Internal notes" description="Only your team can see these, never the customer.">
       <Alert type={status.type || "info"} className="mb-4">{status.message}</Alert>
       <textarea
         rows={4}
@@ -396,12 +407,17 @@ function HistoryPanel({ order }) {
 }
 
 function CustomerPanel({ order }) {
+  const { user } = useAuth();
   const c = order.customer;
   if (!c) return <Card title="Customer"><p className="text-sm text-slate-500">This customer account no longer exists.</p></Card>;
   return (
     <Card
       title="Customer"
-      actions={<Link href={`/admin/customers/${c._id}`} className="text-sm font-semibold text-brand-700 hover:text-brand-800">View</Link>}
+      actions={
+        user?.role === "admin" && (
+          <Link href={`/admin/customers/${c._id}`} className="text-sm font-semibold text-brand-700 hover:text-brand-800">View</Link>
+        )
+      }
     >
       <p className="font-medium text-slate-900">{c.name}</p>
       {c.companyName && <p className="text-sm text-slate-600">{c.companyName}</p>}
@@ -414,33 +430,84 @@ function CustomerPanel({ order }) {
 
 function AssignPanel({ order, onDone }) {
   const { user } = useAuth();
+  const current = order.assignedTo?._id || "";
+  const mine = current === user._id;
+
+  if (user.role !== "admin") {
+    return (
+      <Card title="Assigned to">
+        <p className="text-sm text-slate-900">{mine ? "You" : order.assignedTo?.name || "Nobody"}</p>
+        <p className="mt-1 text-xs text-slate-500">Only an admin can reassign this order.</p>
+      </Card>
+    );
+  }
+
+  return <AssignControls key={current} order={order} onDone={onDone} />;
+}
+
+// Admins: pick any active admin or employee (they get an email)
+function AssignControls({ order, onDone }) {
+  const { user } = useAuth();
+  const current = order.assignedTo?._id || "";
+  const team = useApi("/admin/team?status=active");
+  const members = team.data?.members || [];
+
+  const [choice, setChoice] = useState(current);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
-  const mine = order.assignedTo?._id === user._id;
 
   const assign = async (assignedTo) => {
     setBusy(true);
     setError("");
     try {
-      await api(`/admin/orders/${order._id}/assign`, { method: "PATCH", body: { assignedTo } });
+      await api(`/admin/orders/${order._id}/assign`, { method: "PATCH", body: { assignedTo: assignedTo || null } });
       onDone();
     } catch (err) {
       setError(err.message);
-    } finally {
       setBusy(false);
     }
   };
+
+  const chosen = members.find((m) => m._id === choice);
 
   return (
     <Card title="Assigned to">
       <Alert type="error" className="mb-3">{error}</Alert>
       <p className="text-sm text-slate-900">
-        {order.assignedTo ? `${order.assignedTo.name}${mine ? " (you)" : ""}` : <span className="text-slate-500">Nobody yet</span>}
+        {order.assignedTo ? `${order.assignedTo.name}${current === user._id ? " (you)" : ""}` : <span className="text-slate-500">Nobody yet</span>}
       </p>
-      <div className="mt-3 flex gap-2">
-        {!mine && <Button size="sm" variant="outline" loading={busy} onClick={() => assign(user._id)}>Assign to me</Button>}
-        {order.assignedTo && <Button size="sm" variant="ghost" disabled={busy} onClick={() => assign(null)}>Unassign</Button>}
+
+      <label htmlFor="assign-to" className="mb-1.5 mt-4 block text-sm font-medium text-slate-800">Assign to</label>
+      <select
+        id="assign-to"
+        value={choice}
+        onChange={(e) => setChoice(e.target.value)}
+        disabled={busy || team.loading}
+        className="block w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+      >
+        <option value="">Nobody (unassigned)</option>
+        {members.map((m) => (
+          <option key={m._id} value={m._id}>
+            {m.name}{m._id === user._id ? " (you)" : ""} · {m.role === "admin" ? "Admin" : "Employee"} · {m.openOrders} open
+          </option>
+        ))}
+      </select>
+      {team.error && <p className="mt-1.5 text-sm text-red-600">{team.error.message}</p>}
+      {chosen && chosen._id !== user._id && choice !== current && (
+        <p className="mt-1.5 text-xs text-slate-500">{chosen.name} will get an email about this order.</p>
+      )}
+
+      <div className="mt-3 flex flex-wrap gap-2">
+        <Button size="sm" loading={busy} disabled={choice === current} onClick={() => assign(choice)}>
+          {choice ? "Assign" : "Unassign"}
+        </Button>
+        {current !== user._id && (
+          <Button size="sm" variant="outline" disabled={busy} onClick={() => assign(user._id)}>Assign to me</Button>
+        )}
       </div>
+      <p className="mt-3 text-xs text-slate-500">
+        Manage your team on the <Link href="/admin/team" className="font-semibold text-brand-700 hover:text-brand-800">Team page</Link>.
+      </p>
     </Card>
   );
 }

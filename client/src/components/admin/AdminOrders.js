@@ -8,6 +8,7 @@ import Alert from "@/components/ui/Alert";
 import PageHeader from "@/components/dashboard/PageHeader";
 import AdminOrdersTable from "@/components/admin/AdminOrdersTable";
 import { FilterTabs, SearchBox, Pagination, useQueryHref } from "@/components/ui/ListControls";
+import { useAuth } from "@/context/AuthContext";
 import { useApi } from "@/lib/useApi";
 import { PAYMENT_STATUS } from "@/lib/format";
 
@@ -20,12 +21,14 @@ const statusTabs = [
 ];
 
 // Filters the API understands, all kept in the page URL
-const FILTERS = ["status", "paymentStatus", "search", "customer", "from", "to", "page"];
+const FILTERS = ["status", "paymentStatus", "assignedTo", "search", "customer", "from", "to", "page"];
 
 export default function AdminOrders() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const hrefFor = useQueryHref();
+  const { user } = useAuth();
+  const isAdmin = user?.role === "admin";
   const get = (k) => searchParams.get(k) || "";
 
   const query = new URLSearchParams({ limit: "20" });
@@ -33,7 +36,9 @@ export default function AdminOrders() {
   const { data, error, loading } = useApi(`/admin/orders?${query}`);
 
   // Show the customer's name on the "filtered by customer" chip
-  const customer = useApi(get("customer") ? `/admin/customers/${get("customer")}` : null).data?.customer;
+  const customer = useApi(isAdmin && get("customer") ? `/admin/customers/${get("customer")}` : null).data?.customer;
+  // Team list for the "Assigned to" filter (admins only)
+  const team = useApi(isAdmin ? "/admin/team?status=active" : null).data?.members || [];
 
   const orders = data?.orders || [];
   const hasFilters = FILTERS.some((k) => k !== "page" && get(k));
@@ -41,11 +46,14 @@ export default function AdminOrders() {
 
   return (
     <>
-      <PageHeader title="Orders" description="Every order from every customer." />
+      <PageHeader
+        title={isAdmin ? "Orders" : "My orders"}
+        description={isAdmin ? "Every order from every customer." : "Orders assigned to you."}
+      />
 
       <FilterTabs tabs={statusTabs} value={get("status")} />
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className={`mt-4 grid gap-3 sm:grid-cols-2 ${isAdmin ? "lg:grid-cols-5" : "lg:grid-cols-4"}`}>
         <SearchBox
           key={get("search")}
           value={get("search")}
@@ -63,6 +71,20 @@ export default function AdminOrders() {
             <option key={value} value={value}>{s.label}</option>
           ))}
         </select>
+        {isAdmin && (
+          <select
+            value={get("assignedTo")}
+            onChange={(e) => setFilter({ assignedTo: e.target.value })}
+            aria-label="Assigned to"
+            className="rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-800 shadow-sm focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
+          >
+            <option value="">Assigned to anyone</option>
+            <option value="none">Unassigned</option>
+            {team.map((m) => (
+              <option key={m._id} value={m._id}>{m.name}</option>
+            ))}
+          </select>
+        )}
         <div className="flex items-center gap-2 lg:col-span-2">
           <DateInput label="From" value={get("from")} onChange={(v) => setFilter({ from: v })} />
           <span className="text-slate-400">–</span>
@@ -91,7 +113,7 @@ export default function AdminOrders() {
           <EmptyState title={hasFilters ? "No orders match these filters" : "No orders yet"} />
         ) : (
           <div className={loading ? "opacity-60 transition-opacity" : ""}>
-            <AdminOrdersTable orders={orders} />
+            <AdminOrdersTable orders={orders} customerLinks={isAdmin} showAssigned={isAdmin} />
           </div>
         )}
         <Pagination pagination={data?.pagination} noun="orders" />

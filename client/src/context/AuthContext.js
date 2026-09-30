@@ -65,8 +65,12 @@ export function useAuth() {
   return context;
 }
 
+// Admins and employees both use the admin panel (employees see only their orders)
+export const STAFF_ROLES = ["admin", "employee"];
+export const isStaff = (user) => STAFF_ROLES.includes(user?.role);
+
 // Where to send a user after login
-export const homeFor = (user) => (user?.role === "admin" ? "/admin" : "/dashboard");
+export const homeFor = (user) => (isStaff(user) ? "/admin" : "/dashboard");
 
 // Only allow redirects to our own pages (blocks "?next=//evil.com" tricks)
 export const safeNext = (next) =>

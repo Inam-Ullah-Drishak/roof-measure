@@ -145,7 +145,7 @@ export default function ServicesPage() {
                 alt={s.photo.alt}
                 placeholder="blur"
                 sizes="(min-width: 1024px) 600px, 100vw"
-                className="mb-8 aspect-[16/10] h-auto w-full rounded-2xl object-cover shadow-lg ring-1 ring-slate-200"
+                className="mb-8 aspect-16/10 h-auto w-full rounded-2xl object-cover shadow-lg ring-1 ring-slate-200"
               />
               <SectionHeading align="left" eyebrow={s.eyebrow} title={s.title} text={s.text} />
               <p className="mt-6 text-sm text-slate-500">

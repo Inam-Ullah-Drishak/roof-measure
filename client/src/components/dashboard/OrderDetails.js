@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import BackButton from "@/components/ui/BackButton";
 import { useSearchParams } from "next/navigation";
 import Button, { Spinner } from "@/components/ui/Button";
 import Card from "@/components/ui/Card";
@@ -111,9 +112,7 @@ export default function OrderDetails({ id }) {
           </>
         }
       >
-        <Link href="/dashboard/orders" className="mb-2 inline-block text-sm font-medium text-slate-500 hover:text-slate-800">
-          &larr; My orders
-        </Link>
+        <BackButton href="/dashboard/orders" alwaysLink={Boolean(paymentParam)}>Back to my orders</BackButton>
       </PageHeader>
 
       <PaymentNotice

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import BackButton from "@/components/ui/BackButton";
 import Button, { Spinner } from "@/components/ui/Button";
 import Card, { EmptyState } from "@/components/ui/Card";
 import Alert from "@/components/ui/Alert";
@@ -50,9 +51,7 @@ export default function AdminCustomerDetails({ id }) {
           )
         }
       >
-        <Link href="/admin/customers" className="mb-2 inline-block text-sm font-medium text-slate-500 hover:text-slate-800">
-          &larr; Customers
-        </Link>
+        <BackButton href="/admin/customers">Back to customers</BackButton>
       </PageHeader>
 
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

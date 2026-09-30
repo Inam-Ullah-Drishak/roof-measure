@@ -1,12 +1,7 @@
-import RequireAuth from "@/components/auth/RequireAuth";
-import AccountPlaceholder from "@/components/auth/AccountPlaceholder";
+import AdminDashboard from "@/components/admin/AdminDashboard";
 
-export const metadata = { title: "Admin panel", robots: { index: false } };
+export const metadata = { title: "Dashboard" };
 
 export default function AdminPage() {
-  return (
-    <RequireAuth role="admin">
-      <AccountPlaceholder title="Admin panel" />
-    </RequireAuth>
-  );
+  return <AdminDashboard />;
 }

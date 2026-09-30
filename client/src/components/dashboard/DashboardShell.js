@@ -5,15 +5,20 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/context/AuthContext";
+import { customerNav } from "@/config/dashboardNav";
 
-const nav = [
-  { href: "/dashboard", label: "Overview", icon: "M3 12 12 4l9 8M5 10v10h5v-6h4v6h5V10", exact: true },
-  { href: "/dashboard/orders/new", label: "New order", icon: "M12 5v14M5 12h14" },
-  { href: "/dashboard/orders", label: "My orders", icon: "M4 6h16M4 12h16M4 18h10" },
-  { href: "/dashboard/account", label: "Account", icon: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0" },
-];
+const ICONS = {
+  home: "M3 12 12 4l9 8M5 10v10h5v-6h4v6h5V10",
+  plus: "M12 5v14M5 12h14",
+  list: "M4 6h16M4 12h16M4 18h10",
+  user: "M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 8a7 7 0 0 1 14 0",
+  users: "M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm-7 9a7 7 0 0 1 14 0M16 3.1a4 4 0 0 1 0 7.8M22 20a7 7 0 0 0-4-6.3",
+  mail: "M3 6h18v12H3zM3 7l9 6 9-6",
+  chart: "M4 20V10M10 20V4M16 20v-7M22 20H2",
+};
 
-export default function DashboardShell({ children }) {
+// badges: { "/admin/enquiries": 3 } shows a count next to that link
+export default function DashboardShell({ nav = customerNav, badges = {}, label, children }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const pathname = usePathname();
 
@@ -37,9 +42,14 @@ export default function DashboardShell({ children }) {
           aria-current={isActive(item) ? "page" : undefined}
         >
           <svg className="h-5 w-5 flex-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d={item.icon} />
+            <path d={ICONS[item.icon]} />
           </svg>
-          {item.label}
+          <span className="flex-1">{item.label}</span>
+          {badges[item.href] > 0 && (
+            <span className="rounded-full bg-accent-500 px-2 py-0.5 text-xs font-bold text-brand-950">
+              {badges[item.href]}
+            </span>
+          )}
         </Link>
       ))}
     </nav>
@@ -50,6 +60,7 @@ export default function DashboardShell({ children }) {
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-slate-200 bg-white px-4 py-5 lg:flex">
         <Logo className="px-2" />
+        {label && <p className="mt-1 px-2 text-xs font-semibold uppercase tracking-wider text-accent-600">{label}</p>}
         <div className="mt-8 flex flex-1 flex-col">{links}</div>
         <UserMenu />
       </aside>

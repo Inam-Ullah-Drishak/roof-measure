@@ -67,3 +67,9 @@ export function useAuth() {
 
 // Where to send a user after login
 export const homeFor = (user) => (user?.role === "admin" ? "/admin" : "/dashboard");
+
+// Only allow redirects to our own pages (blocks "?next=//evil.com" tricks)
+export const safeNext = (next) =>
+  next && next.startsWith("/") && !next.startsWith("//") && !next.startsWith("/\\")
+    ? next
+    : null;

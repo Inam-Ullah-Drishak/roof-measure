@@ -58,7 +58,7 @@ export default function AdminCustomers() {
               <tbody className="divide-y divide-slate-100">
                 {customers.map((c) => (
                   <tr key={c._id} className="hover:bg-slate-50">
-                    <td className="max-w-[14rem] py-3.5 pr-4">
+                    <td className="max-w-56 py-3.5 pr-4">
                       <Link href={`/admin/customers/${c._id}`} className="block truncate font-semibold text-brand-700 hover:text-brand-800">
                         {c.name}
                       </Link>

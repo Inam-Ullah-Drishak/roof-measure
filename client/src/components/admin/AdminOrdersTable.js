@@ -32,7 +32,7 @@ export default function AdminOrdersTable({ orders, showCustomer = true }) {
                   )}
                 </td>
                 {showCustomer && (
-                  <td className="max-w-[12rem] py-3.5 pr-4 align-top">
+                  <td className="max-w-48 py-3.5 pr-4 align-top">
                     {o.customer ? (
                       <Link href={`/admin/customers/${o.customer._id}`} className="block truncate font-medium text-slate-900 hover:text-brand-700">
                         {o.customer.name}

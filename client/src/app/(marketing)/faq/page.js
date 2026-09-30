@@ -3,14 +3,15 @@ import Button from "@/components/ui/Button";
 import PageHero from "@/components/layout/PageHero";
 import { orderHref } from "@/components/marketing/PricingCards";
 import { site, pricing } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "FAQ",
   description:
     "Answers to common questions about our aerial roof measurement reports: ordering, accuracy, pricing, payment, turnaround, file formats and your account.",
-  alternates: { canonical: "/faq" },
-  openGraph: { title: `Frequently Asked Questions | ${site.name}`, url: "/faq" },
-};
+  path: "/faq",
+  shareTitle: `Frequently Asked Questions | ${site.name}`,
+});
 
 const fromPrice = Math.min(...pricing.reportTypes.map((r) => r.price));
 const rushPrice = pricing.addOns.find((a) => a.id === "rush").price;

@@ -12,6 +12,15 @@ export const site = {
   hours: "Mon–Fri, 8am–6pm",
 };
 
+// Used on the Privacy Policy and Terms of Service pages.
+// PLACEHOLDER: the client's registered business name, state and address. Have a lawyer review both pages.
+export const legal = {
+  companyName: "Roof Measure LLC",
+  state: "Texas",
+  address: "123 Example St, Anytown, TX 75001",
+  lastUpdated: "September 30, 2026",
+};
+
 export const mainNav = [
   { href: "/services", label: "Services" },
   { href: "/pricing", label: "Pricing" },

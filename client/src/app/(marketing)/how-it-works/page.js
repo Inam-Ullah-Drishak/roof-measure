@@ -4,14 +4,15 @@ import PageHero from "@/components/layout/PageHero";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import { orderHref } from "@/components/marketing/PricingCards";
 import { site } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "How It Works",
   description:
     "Order an aerial roof measurement report in minutes: enter the address, choose your options, pay securely and download your report from your dashboard. No site visit or subscription.",
-  alternates: { canonical: "/how-it-works" },
-  openGraph: { title: `How Our Roof Measurement Reports Work | ${site.name}`, url: "/how-it-works" },
-};
+  path: "/how-it-works",
+  shareTitle: `How Our Roof Measurement Reports Work | ${site.name}`,
+});
 
 const steps = [
   {

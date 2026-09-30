@@ -5,13 +5,14 @@ import RoofDiagram from "@/components/home/RoofDiagram";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import { orderHref } from "@/components/marketing/PricingCards";
 import { site } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "About Us",
   description: `${site.name} provides accurate aerial roof measurement reports for roofing contractors, insurance adjusters and solar installers, so they can quote jobs without climbing a ladder.`,
-  alternates: { canonical: "/about" },
-  openGraph: { title: `About ${site.name}`, url: "/about" },
-};
+  path: "/about",
+  shareTitle: `About ${site.name}`,
+});
 
 const values = [
   {

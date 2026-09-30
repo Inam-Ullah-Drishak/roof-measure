@@ -4,14 +4,15 @@ import PageHero from "@/components/layout/PageHero";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import { orderHref } from "@/components/marketing/PricingCards";
 import { site, pricing } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Roof Measurement Services",
   description:
     "Aerial roof measurement reports for residential roofs, commercial and multi-family buildings, and insurance claims. Accurate area, pitch and line lengths in PDF, ESX, XML or DXF.",
-  alternates: { canonical: "/services" },
-  openGraph: { title: `Aerial Roof Measurement Services | ${site.name}`, url: "/services" },
-};
+  path: "/services",
+  shareTitle: `Aerial Roof Measurement Services | ${site.name}`,
+});
 
 const priceOf = (id) => pricing.reportTypes.find((r) => r.id === id)?.price;
 

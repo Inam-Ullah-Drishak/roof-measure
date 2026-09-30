@@ -2,13 +2,14 @@ import Link from "next/link";
 import PageHero from "@/components/layout/PageHero";
 import ContactForm from "@/components/contact/ContactForm";
 import { site } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Contact Us",
   description: `Questions about aerial roof measurement reports, pricing or an existing order? Contact the ${site.name} team by email, phone or our contact form.`,
-  alternates: { canonical: "/contact" },
-  openGraph: { title: `Contact ${site.name}`, url: "/contact" },
-};
+  path: "/contact",
+  shareTitle: `Contact ${site.name}`,
+});
 
 const contactMethods = [
   {

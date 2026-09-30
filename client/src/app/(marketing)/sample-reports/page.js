@@ -5,14 +5,15 @@ import RoofDiagram from "@/components/home/RoofDiagram";
 import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading";
 import { orderHref } from "@/components/marketing/PricingCards";
 import { site, pricing } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Sample Roof Reports",
   description:
     "See what's inside our aerial roof measurement reports: roof diagrams, total area and squares, pitch per facet, ridge, hip, valley, rake and eave lengths, and a waste factor table.",
-  alternates: { canonical: "/sample-reports" },
-  openGraph: { title: `Sample Roof Measurement Reports | ${site.name}`, url: "/sample-reports" },
-};
+  path: "/sample-reports",
+  shareTitle: `Sample Roof Measurement Reports | ${site.name}`,
+});
 
 // Put the sample PDFs in client/public/samples/ and set `file` (e.g. "/samples/standard.pdf").
 // Until a file is set, the card asks visitors to request that sample instead.

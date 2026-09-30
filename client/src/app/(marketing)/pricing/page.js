@@ -5,15 +5,16 @@ import SectionHeading, { CheckIcon } from "@/components/marketing/SectionHeading
 import PricingCards, { orderHref } from "@/components/marketing/PricingCards";
 import PriceCalculator from "@/components/marketing/PriceCalculator";
 import { site, pricing } from "@/config/site";
+import { pageMetadata } from "@/lib/seo";
 
 const fromPrice = Math.min(...pricing.reportTypes.map((r) => r.price));
 
-export const metadata = {
+export const metadata = pageMetadata({
   title: "Pricing",
   description: `Simple per-report pricing for aerial roof measurement reports, from $${fromPrice}. No subscription. Add rush delivery, detached structures, or ESX, XML and DXF files as needed.`,
-  alternates: { canonical: "/pricing" },
-  openGraph: { title: `Roof Measurement Report Pricing | ${site.name}`, url: "/pricing" },
-};
+  path: "/pricing",
+  shareTitle: `Roof Measurement Report Pricing | ${site.name}`,
+});
 
 const included = [
   "Total roof area and squares",

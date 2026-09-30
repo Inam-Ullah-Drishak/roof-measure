@@ -47,7 +47,7 @@ export default function Header() {
             <Link
               key={item.href}
               href={item.href}
-              className={`rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+              className={`whitespace-nowrap rounded-md px-2 py-2 text-sm font-medium transition-colors xl:px-3 ${
                 isActive(item.href) ? "text-brand-700" : "text-slate-600 hover:text-slate-900"
               }`}
             >

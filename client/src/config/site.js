@@ -18,6 +18,7 @@ export const mainNav = [
   { href: "/how-it-works", label: "How It Works" },
   { href: "/sample-reports", label: "Sample Reports" },
   { href: "/about", label: "About" },
+  { href: "/faq", label: "FAQ" },
   { href: "/contact", label: "Contact" },
 ];
 

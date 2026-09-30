@@ -1,12 +1,7 @@
-import RequireAuth from "@/components/auth/RequireAuth";
-import AccountPlaceholder from "@/components/auth/AccountPlaceholder";
+import Overview from "@/components/dashboard/Overview";
 
-export const metadata = { title: "My dashboard", robots: { index: false } };
+export const metadata = { title: "Overview" };
 
 export default function DashboardPage() {
-  return (
-    <RequireAuth role="customer">
-      <AccountPlaceholder title="My dashboard" />
-    </RequireAuth>
-  );
+  return <Overview />;
 }

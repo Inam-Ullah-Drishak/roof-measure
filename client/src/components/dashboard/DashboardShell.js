@@ -1,11 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/context/AuthContext";
 import { customerNav } from "@/config/dashboardNav";
+import MenuButton from "@/components/ui/MenuButton";
+import { useMobileMenu, staggerDelay } from "@/lib/useMobileMenu";
 
 const ICONS = {
   home: "M3 12 12 4l9 8M5 10v10h5v-6h4v6h5V10",
@@ -20,6 +22,8 @@ const ICONS = {
 // badges: { "/admin/enquiries": 3 } shows a count next to that link
 export default function DashboardShell({ nav = customerNav, badges = {}, label, children }) {
   const [menuOpen, setMenuOpen] = useState(false);
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+  const { buttonRef, panelRef } = useMobileMenu(menuOpen, closeMenu);
   const pathname = usePathname();
 
   // "My orders" shouldn't light up on the "New order" page
@@ -29,15 +33,23 @@ export default function DashboardShell({ nav = customerNav, badges = {}, label, 
       : pathname === item.href ||
         (pathname.startsWith(`${item.href}/`) && !nav.some((n) => n !== item && n.href.startsWith(item.href) && pathname.startsWith(n.href)));
 
-  const links = (
+  // animate: slide the links in one by one (mobile drawer only)
+  const renderLinks = (animate = false) => (
     <nav className="flex flex-1 flex-col gap-1" aria-label="Dashboard">
-      {nav.map((item) => (
+      {nav.map((item, i) => (
         <Link
           key={item.href}
           href={item.href}
-          onClick={() => setMenuOpen(false)}
+          onClick={closeMenu}
+          style={animate ? staggerDelay(menuOpen, i) : undefined}
           className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
             isActive(item) ? "bg-brand-50 text-brand-700" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+          } ${
+            animate
+              ? `transition-[opacity,transform,background-color,color] duration-300 ease-out motion-reduce:transition-none ${
+                  menuOpen ? "translate-x-0 opacity-100" : "-translate-x-4 opacity-0"
+                }`
+              : ""
           }`}
           aria-current={isActive(item) ? "page" : undefined}
         >
@@ -61,48 +73,47 @@ export default function DashboardShell({ nav = customerNav, badges = {}, label, 
       <aside className="fixed inset-y-0 left-0 hidden w-64 flex-col border-r border-slate-200 bg-white px-4 py-5 lg:flex">
         <Logo className="px-2" />
         {label && <p className="mt-1 px-2 text-xs font-semibold uppercase tracking-wider text-accent-600">{label}</p>}
-        <div className="mt-8 flex flex-1 flex-col">{links}</div>
+        <div className="mt-8 flex flex-1 flex-col">{renderLinks()}</div>
         <UserMenu />
       </aside>
 
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:hidden">
         <Logo />
-        <button
-          type="button"
-          onClick={() => setMenuOpen(true)}
-          className="rounded-md p-2 text-slate-700 hover:bg-slate-100"
-          aria-label="Open menu"
-        >
-          <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-            <path strokeLinecap="round" d="M4 7h16M4 12h16M4 17h16" />
-          </svg>
-        </button>
+        <MenuButton ref={buttonRef} open={menuOpen} onClick={() => setMenuOpen((v) => !v)} controls="dashboard-drawer" />
       </header>
 
-      {/* Mobile drawer */}
-      {menuOpen && (
-        <div className="fixed inset-0 z-40 lg:hidden" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-slate-900/40" onClick={() => setMenuOpen(false)} />
-          <div className="absolute inset-y-0 left-0 flex w-72 flex-col bg-white px-4 py-5 shadow-xl">
-            <div className="flex items-center justify-between">
-              <Logo />
-              <button
-                type="button"
-                onClick={() => setMenuOpen(false)}
-                className="rounded-md p-2 text-slate-700 hover:bg-slate-100"
-                aria-label="Close menu"
-              >
-                <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
-                  <path strokeLinecap="round" d="M6 6l12 12M18 6 6 18" />
-                </svg>
-              </button>
-            </div>
-            <div className="mt-8 flex flex-1 flex-col">{links}</div>
-            <UserMenu />
+      {/* Mobile drawer: always rendered so it can animate in and out */}
+      <div
+        className={`fixed inset-0 z-40 lg:hidden ${menuOpen ? "" : "pointer-events-none"}`}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Menu"
+        aria-hidden={!menuOpen}
+        inert={!menuOpen}
+      >
+        <div
+          className={`absolute inset-0 bg-slate-900/50 backdrop-blur-sm transition-opacity duration-300 ease-out motion-reduce:transition-none ${
+            menuOpen ? "opacity-100" : "opacity-0"
+          }`}
+          onClick={closeMenu}
+        />
+        <div
+          id="dashboard-drawer"
+          ref={panelRef}
+          className={`absolute inset-y-0 left-0 flex w-72 max-w-[85vw] flex-col bg-white px-4 py-5 shadow-2xl transition-transform duration-300 ease-[cubic-bezier(0.32,0.72,0,1)] motion-reduce:transition-none ${
+            menuOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
+          <div className="flex items-center justify-between">
+            <Logo />
+            <MenuButton open onClick={closeMenu} />
           </div>
+          {label && <p className="mt-1 px-2 text-xs font-semibold uppercase tracking-wider text-accent-600">{label}</p>}
+          <div className="mt-8 flex flex-1 flex-col">{renderLinks(true)}</div>
+          <UserMenu />
         </div>
-      )}
+      </div>
 
       <main className="lg:pl-64">
         <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6 lg:px-10 lg:py-10">{children}</div>

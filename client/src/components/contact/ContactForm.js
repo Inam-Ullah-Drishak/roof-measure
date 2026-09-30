@@ -119,7 +119,7 @@ export default function ContactForm() {
       </div>
 
       {/* Spam trap: hidden from people, bots fill it in. Don't use type="hidden" (bots skip those). */}
-      <div className="absolute -left-[9999px] h-px w-px overflow-hidden" aria-hidden="true">
+      <div className="absolute left-[-9999px] h-px w-px overflow-hidden" aria-hidden="true">
         <label htmlFor="website">Leave this field empty</label>
         <input id="website" name="website" type="text" tabIndex={-1} autoComplete="off" value={form.website} onChange={onChange} />
       </div>

@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import Logo from "@/components/ui/Logo";
 import Button from "@/components/ui/Button";
 import MenuButton from "@/components/ui/MenuButton";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { mainNav } from "@/config/site";
 import { useAuth, homeFor, isStaff } from "@/context/AuthContext";
 import { useMobileMenu, staggerDelay } from "@/lib/useMobileMenu";
@@ -56,9 +57,11 @@ export default function Header() {
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 lg:flex">{authButtons}</div>
-
-        <MenuButton ref={buttonRef} open={open} onClick={() => setOpen((v) => !v)} controls="mobile-menu" className="lg:hidden" />
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <div className="hidden items-center gap-2 lg:flex">{authButtons}</div>
+          <MenuButton ref={buttonRef} open={open} onClick={() => setOpen((v) => !v)} controls="mobile-menu" className="lg:hidden" />
+        </div>
       </div>
 
       {/* Dimmed page behind the menu */}

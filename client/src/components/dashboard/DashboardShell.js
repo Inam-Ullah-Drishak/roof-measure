@@ -7,6 +7,7 @@ import Logo from "@/components/ui/Logo";
 import { useAuth } from "@/context/AuthContext";
 import { customerNav } from "@/config/dashboardNav";
 import MenuButton from "@/components/ui/MenuButton";
+import ThemeToggle from "@/components/ui/ThemeToggle";
 import { useMobileMenu, staggerDelay } from "@/lib/useMobileMenu";
 
 const ICONS = {
@@ -83,7 +84,10 @@ export default function DashboardShell({ nav = customerNav, badges = {}, label, 
       {/* Mobile top bar */}
       <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-slate-200 bg-white px-4 lg:hidden">
         <Logo />
-        <MenuButton ref={buttonRef} open={menuOpen} onClick={() => setMenuOpen((v) => !v)} controls="dashboard-drawer" />
+        <div className="flex items-center gap-1">
+          <ThemeToggle />
+          <MenuButton ref={buttonRef} open={menuOpen} onClick={() => setMenuOpen((v) => !v)} controls="dashboard-drawer" />
+        </div>
       </header>
 
       {/* Mobile drawer: always rendered so it can animate in and out */}
@@ -140,10 +144,11 @@ function UserMenu() {
         <span className="flex h-9 w-9 flex-none items-center justify-center rounded-full bg-brand-100 text-sm font-bold text-brand-700">
           {user?.name?.[0]?.toUpperCase()}
         </span>
-        <div className="min-w-0">
+        <div className="min-w-0 flex-1">
           <p className="truncate text-sm font-semibold text-slate-900">{user?.name}</p>
           <p className="truncate text-xs text-slate-500">{user?.email}</p>
         </div>
+        <ThemeToggle className="hidden flex-none lg:block" />
       </div>
       <div className="mt-3 flex gap-2 px-2 text-sm">
         <Link href="/" className="text-slate-500 hover:text-slate-800">Website</Link>

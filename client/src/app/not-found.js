@@ -22,7 +22,7 @@ export default function NotFound() {
       <Header />
       <main id="main" className="flex-1">
         <section className="relative overflow-hidden bg-brand-950">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,111,246,0.35),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(249,115,22,0.35),transparent_60%)]" />
           <div className="relative mx-auto max-w-3xl px-4 py-20 text-center sm:px-6 sm:py-28 lg:px-8">
             <p className="font-display text-7xl font-extrabold text-accent-400 sm:text-8xl">404</p>
             <h1 className="mt-4 text-3xl font-bold text-white sm:text-4xl">We couldn&apos;t measure this page</h1>

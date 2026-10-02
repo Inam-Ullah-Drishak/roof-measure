@@ -17,7 +17,7 @@ export default function AuthLayout({ children }) {
       </div>
 
       <aside className="relative hidden overflow-hidden bg-brand-950 lg:flex lg:flex-col lg:justify-center lg:px-16">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,111,246,0.35),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(249,115,22,0.35),transparent_60%)]" />
         <div className="relative">
           <RoofDiagram className="h-auto w-full max-w-lg" />
           <h2 className="mt-10 text-3xl font-bold text-white">Accurate roof reports, ordered in minutes</h2>

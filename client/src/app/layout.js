@@ -32,9 +32,15 @@ export const metadata = {
   robots: { index: true, follow: true },
 };
 
+// Runs before paint: use the saved theme, else the system setting (avoids a light flash)
+const themeScript = `try{var t=localStorage.getItem("theme");if(t!=="light"&&t!=="dark")t=matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.dataset.theme=t}catch(e){}`;
+
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${body.variable} ${heading.variable}`}>
+    <html lang="en" className={`${body.variable} ${heading.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className="flex min-h-screen flex-col">
         <AuthProvider>{children}</AuthProvider>
       </body>

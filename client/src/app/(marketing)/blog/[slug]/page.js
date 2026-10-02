@@ -83,7 +83,7 @@ export default async function BlogPostPage({ params }) {
 
       <article>
         <header className="relative overflow-hidden bg-brand-950">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,111,246,0.35),transparent_60%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(249,115,22,0.35),transparent_60%)]" />
           <div className="relative mx-auto max-w-3xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
             <nav aria-label="Breadcrumb" className="text-sm text-slate-400">
               <Link href="/blog" className="hover:text-white">Blog</Link>
@@ -125,10 +125,11 @@ export default async function BlogPostPage({ params }) {
 
       <section className="border-t border-slate-200 bg-slate-50 py-16">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="rounded-3xl bg-brand-600 px-6 py-10 text-center sm:px-12">
-            <h2 className="text-2xl font-bold text-white sm:text-3xl">Get accurate roof measurements without the ladder</h2>
-            <p className="mx-auto mt-3 max-w-2xl text-brand-100">Order a report online and download it from your dashboard.</p>
-            <div className="mt-6 flex flex-col justify-center gap-3 sm:flex-row">
+          <div className="relative overflow-hidden rounded-3xl bg-brand-950 px-6 py-10 text-center ring-1 ring-white/10 sm:px-12">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(249,115,22,0.35),transparent_60%),radial-gradient(ellipse_at_top_right,rgba(255,138,31,0.18),transparent_55%)]" />
+            <h2 className="relative text-2xl font-bold text-white sm:text-3xl">Get accurate roof measurements without the ladder</h2>
+            <p className="relative mx-auto mt-3 max-w-2xl text-slate-300">Order a report online and download it from your dashboard.</p>
+            <div className="relative mt-6 flex flex-col justify-center gap-3 sm:flex-row">
               <Button href={orderHref()} variant="accent" size="lg">Order a report</Button>
               <Button href="/sample-reports" variant="light" size="lg">See a sample</Button>
             </div>

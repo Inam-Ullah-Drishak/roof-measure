@@ -211,11 +211,11 @@ export default function AboutPage() {
       {/* CTA */}
       <section className="py-16 sm:py-20">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl bg-brand-600 px-6 py-14 text-center sm:px-12">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(245,158,11,0.3),transparent_55%)]" />
+          <div className="relative overflow-hidden rounded-3xl bg-brand-950 px-6 py-14 text-center ring-1 ring-white/10 sm:px-12">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(249,115,22,0.35),transparent_60%),radial-gradient(ellipse_at_top_right,rgba(255,138,31,0.18),transparent_55%)]" />
             <div className="relative">
               <h2 className="text-3xl font-bold text-white sm:text-4xl">Let&apos;s measure your next roof</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-lg text-brand-100">
+              <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-300">
                 Order your first report in minutes, or get in touch and we&apos;ll answer any questions.
               </p>
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

@@ -16,7 +16,7 @@ export default function PageHero({ eyebrow, title, text, children, image = photo
       />
       {/* Keeps the text readable on any photo */}
       <div className="absolute inset-0 -z-10 bg-linear-to-r from-brand-950 via-brand-950/85 to-brand-950/40" />
-      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(59,111,246,0.3),transparent_60%)]" />
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_top_right,rgba(249,115,22,0.3),transparent_60%)]" />
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
         <div className="max-w-3xl">
           {eyebrow && <p className="text-sm font-semibold uppercase tracking-wider text-accent-400">{eyebrow}</p>}

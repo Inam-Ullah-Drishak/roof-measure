@@ -75,7 +75,7 @@ export default function HomePage() {
     <>
       {/* Hero */}
       <section className="relative overflow-hidden bg-brand-950">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,111,246,0.35),transparent_60%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(249,115,22,0.35),transparent_60%)]" />
         <div className="relative mx-auto grid max-w-7xl items-center gap-12 px-4 py-20 sm:px-6 lg:grid-cols-2 lg:px-8 lg:py-28">
           <div>
             <p className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-sm text-brand-100">
@@ -260,11 +260,11 @@ export default function HomePage() {
       {/* CTA */}
       <section className="py-20 sm:py-24">
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-3xl bg-brand-600 px-6 py-14 text-center sm:px-12">
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(245,158,11,0.3),transparent_55%)]" />
+          <div className="relative overflow-hidden rounded-3xl bg-brand-950 px-6 py-14 text-center ring-1 ring-white/10 sm:px-12">
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,rgba(249,115,22,0.35),transparent_60%),radial-gradient(ellipse_at_top_right,rgba(255,138,31,0.18),transparent_55%)]" />
             <div className="relative">
               <h2 className="text-3xl font-bold text-white sm:text-4xl">Ready for your next roof report?</h2>
-              <p className="mx-auto mt-4 max-w-2xl text-lg text-brand-100">
+              <p className="mx-auto mt-4 max-w-2xl text-lg text-slate-300">
                 Create a free account and order your first report in minutes. No subscription required.
               </p>
               <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">

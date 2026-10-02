@@ -15,7 +15,7 @@ export default function Logo({ light = false, className = "" }) {
         <rect width="40" height="40" rx="9" className="fill-brand-600" />
         <path d="M8 22 20 11l12 11" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
         <path d="M12 20v9h16v-9" fill="none" stroke="white" strokeWidth="3" strokeLinejoin="round" />
-        <path d="M9 33h22" stroke="#f59e0b" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3" />
+        <path d="M9 33h22" stroke="#0c0907" strokeWidth="2.5" strokeLinecap="round" strokeDasharray="3 3" />
       </svg>
       {site.name}
     </Link>

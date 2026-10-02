@@ -1,10 +1,10 @@
-import { Inter, Plus_Jakarta_Sans } from "next/font/google";
+import { DM_Sans, Bricolage_Grotesque } from "next/font/google";
 import { AuthProvider } from "@/context/AuthContext";
 import { site } from "@/config/site";
 import "./globals.css";
 
-const body = Inter({ variable: "--font-body", subsets: ["latin"] });
-const heading = Plus_Jakarta_Sans({ variable: "--font-heading", subsets: ["latin"] });
+const body = DM_Sans({ variable: "--font-body", subsets: ["latin"], display: "swap" });
+const heading = Bricolage_Grotesque({ variable: "--font-heading", subsets: ["latin"], display: "swap" });
 
 // Default SEO for every page. Each page sets its own title and description.
 export const metadata = {
